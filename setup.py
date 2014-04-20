@@ -22,7 +22,7 @@ if sys.version_info[:2] < (2, 7):
 
 
 setup(
-    name='ott.utils',
+    name='ott.otp_client',
     version='0.1.0',
     description='Open Transit Tools - OTT Database',
     long_description=README + '\n\n' + CHANGES,
@@ -43,9 +43,9 @@ setup(
     install_requires=requires,
     extras_require=extras_require,
     tests_require=requires,
-    test_suite="ott.utils.tests",
+    test_suite="ott.otp_client.tests",
     entry_points="""\
         [console_scripts]
-        load_db = ott.utils:main
+        load_db = ott.otp_client:main
     """,
 )
