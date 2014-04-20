@@ -1,4 +1,6 @@
-otp_client_py
-=============
+otp_client_java
+===============
 
-OpenTripPlanner API wrapper for python
+Java client for OTP
+(also used for interface of old TM to OTP)
+
