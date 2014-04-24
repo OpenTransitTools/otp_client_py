@@ -1,6 +1,6 @@
 """ Convert an OpenTripPlanner json itinerary response into something that's more suitable for rendering via a webpage
 """
-
+import logging
 import sys
 import math
 from decimal import *
@@ -8,17 +8,19 @@ from fractions import Fraction
 import datetime
 from dateutil import tz
 import simplejson as json
-import logging
-log = logging.getLogger(__file__)
 
 from ott.utils import object_utils
 from ott.utils import json_utils
+from ott.utils import config
+import pdb; pdb.set_trace()
+config.config_logger()
+log = logging.getLogger(__file__)
+
 
 class Error(object):
     def __init__(self, jsn, params=None):
         self.id  = jsn['id']
         self.msg = jsn['msg']
-
 
 class DateInfo(object):
     def __init__(self, jsn):
@@ -113,7 +115,6 @@ class Elevation(object):
         self.distance = self.make_distance(steps)
         self.points_array, self.points = self.make_points(steps)
         self.grade = self.find_max_grade(steps)
-        #import pdb; pdb.set_trace()
         self.set_marks()
 
     @classmethod
