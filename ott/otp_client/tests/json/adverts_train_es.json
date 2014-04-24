@@ -1,0 +1,6 @@
+[
+    {"content":"<p><a href=\"#\" class=\"group\" onclick=\"_gaq.push(['_trackEvent', 'TriMetAds-TripPlanner', 'ClickTo', 'CO2']);\"><img src=\"http://dev.trimet.org/images/triptools/ads/co2.png\"><span>Tomar este viaje, en lugar de conducir será ayudar al medio ambiente.</span></a></p>"},
+    {"content":"<p><a href=\"#\" class=\"group\" onclick=\"_gaq.push(['_trackEvent', 'TriMetAds-TripPlanner', 'ClickTo', 'Fares']);\"><img src=\"http://dev.trimet.org/images/triptools/ads/fare.png\"><span>Obtenga horarios, consejos de viaje, ideas de destino y más.</span></a></p>"},
+    {"content":"<p><a href=\"#\" class=\"group\" onclick=\"_gaq.push(['_trackEvent', 'TriMetAds-TripPlanner', 'ClickTo', 'Mobile ticketing']);\"><img src=\"http://dev.trimet.org/images/triptools/ads/mobile.png\"><span>Android y los propietarios de iPhone: Ahora usted puede comprar y utilizar las tarifas TriMet al instante en su teléfono.</span></a></p>"},
+    {"content":"<p><a href=\"#\" class=\"group\" onclick=\"_gaq.push(['_trackEvent', 'TriMetAds-TripPlanner', 'ClickTo', 'Gear store']);\"><img src=\"http://dev.trimet.org/images/triptools/ads/gear.png\"><span>Solicitar tazas, bolsos, camisetas y mucho más en el engranaje de la tienda TriMet.</span></a></p>"}
+]

@@ -7,6 +7,7 @@ README = open(os.path.join(here, 'README.md')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
+    'ott.utils',
     'simplejson'
 ]
 
@@ -33,7 +34,9 @@ setup(
     ],
     author="Open Transit Tools",
     author_email="info@opentransittools.org",
-    dependency_links=('http://opentransittools.com',),
+    dependency_links=[
+        'git+https://github.com/OpenTransitTools/utils.git#egg=ott.utils-0.1.0',
+    ],
     license="Mozilla-derived (http://opentransittools.com)",
     url='http://opentransittools.com',
     keywords='ott, otp, gtfs, gtfsdb, data, database, services, transit',
@@ -46,6 +49,6 @@ setup(
     test_suite="ott.otp_client.tests",
     entry_points="""\
         [console_scripts]
-        load_db = ott.otp_client:main
+        parse_otp_json = ott.otp_client.otp_to_ott:main
     """,
 )

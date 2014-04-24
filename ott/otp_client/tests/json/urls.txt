@@ -1,0 +1,15 @@
+
+BIKE -> WES -> BUS -> BIKE:
+http://maps5.trimet.org/osm?mode=TRANSIT%2CBICYCLE&maxWalkDistance=6437&toPlace=45.535806%2C-122.775058&fromPlace=45.283454%2C-122.761497&time=6:30am&date=3/19/2013
+
+MAX -> Streetcar
+http://maps5.trimet.org/osm?mode=TRAINISH%2CWALK&toPlace=45.530395%2C-122.697896&fromPlace=45.518484%2C-122.691903 
+
+TRAM:
+http://maps.trimet.org/prod?%20time=5%3A05%20pm&mode=TRAINISH%2CWALK&date=2013-03-19&toPlace=45.499060%2C-122.685708&fromPlace=45.528130%2C-122.675854
+
+BIKE:
+http://maps5.trimet.org/osm?mode=BICYCLE&maxWalkDistance=4828&toPlace=PORTLAND%20CITY%20HALL%3A%3A45.515334%2C-122.679464&fromPlace=45.504863%2C-122.642438
+
+WALK:
+http://maps5.trimet.org/osm?mode=WALK&toPlace=45.517374%2C-122.662241&fromPlace=45.504863%2C-122.642438
