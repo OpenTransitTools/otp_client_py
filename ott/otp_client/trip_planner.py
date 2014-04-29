@@ -11,8 +11,8 @@ from ott.controller.util import object_utils
 from ott.controller.util import html_utils
 from ott.controller.util import config
 
-from ott.controller.parser import otp_to_ott
-from ott.controller.parser.planner_param_parser import PlannerParamParser
+from ott.otp_client import otp_to_ott
+from ott.utils.parser.trip_param_parser import TripParamParser
 
 from ott.controller.services.geocoder.geosolr import GeoSolr
 geo = GeoSolr(config.get('solr'))
