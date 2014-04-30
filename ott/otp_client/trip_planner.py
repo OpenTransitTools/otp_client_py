@@ -8,20 +8,26 @@ from ott.utils import json_utils
 from ott.utils import object_utils
 from ott.utils import html_utils
 
+from ott.data.contetn import Adverts
+
 from ott.otp_client  import otp_to_ott
 from ott.utils.parse import TripParamParser
 
 from ott.geocoder.geosolr import GeoSolr
+from ott.data.content import Adverts 
 
 class TripPlanner(object):
-    def __init__(self, otp_url="http://localhost/prod", solr_instance=None, solr_url='http://localhost/solr'):
+    def __init__(self, otp_url="http://localhost/prod", advert_url="http://localhost/adverts", advert_timeout=30, solr_instance=None, solr_url='http://localhost/solr'):
         self.otp_url = otp_url
+
         if solr_instance and isinstance(solr_instance, GeoSolr):
             self.geo = solr_instance
         elif isinstance(solr_url, str):
             self.geo = GeoSolr(solr_url)
 
         self.adverts = None
+        if advert_url:
+            self.adverts = Adverts(advert_url, advert_timeout)
         #import pdb; pdb.set_trace()
 
     def plan_trip(self, request=None, pretty=False):
