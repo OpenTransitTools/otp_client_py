@@ -1,6 +1,5 @@
 """ Convert an OpenTripPlanner json itinerary response into something that's more suitable for rendering via a webpage
 """
-import logging
 import sys
 import math
 from decimal import *
@@ -13,6 +12,7 @@ from ott.utils import object_utils
 from ott.utils import json_utils
 from ott.utils import config
 
+import logging
 config.config_logger()
 log = logging.getLogger(__file__)
 

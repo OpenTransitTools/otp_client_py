@@ -9,16 +9,16 @@ from ott.utils import object_utils
 from ott.utils import html_utils
 from ott.utils import config
 
-from ott.otp_client import otp_to_ott
-from ott.utils.parser import TripParamParser
+from ott.otp_client  import otp_to_ott
+from ott.utils.parse import TripParamParser
 
 from ott.geocoder.geosolr import GeoSolr
 
 class TripPlanner(object):
     def __init__(self, solr_instance=None, solr_url='http://localhost/solr'):
-        if solr_instance:
+        if solr_instance and isinstance(solr_instance, GeoSolr):
             self.geo = solr_instance
-        else
+        elif isinstance(solr_url, str):
             self.geo = GeoSolr(solr_url)
 
         self.adverts = None
