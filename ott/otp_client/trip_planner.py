@@ -15,7 +15,7 @@ from ott.geocoder.geosolr import GeoSolr
 from ott.data.content import Adverts 
 
 class TripPlanner(object):
-    def __init__(self, otp_url="http://localhost/prod", advert_url="http://localhost/adverts", advert_timeout=30, solr_instance=None, solr_url='http://localhost/solr'):
+    def __init__(self, otp_url="http://localhost/prod", advert_url=None, advert_timeout=30, solr_instance=None, solr_url='http://localhost/solr'):
         self.otp_url = otp_url
 
         if solr_instance and isinstance(solr_instance, GeoSolr):
