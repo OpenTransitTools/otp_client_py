@@ -12,6 +12,7 @@ import simplejson as json
 from ott.utils import object_utils
 from ott.utils import json_utils
 from ott.utils import config
+
 config.config_logger()
 log = logging.getLogger(__file__)
 
