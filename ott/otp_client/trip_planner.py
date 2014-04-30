@@ -7,7 +7,6 @@ log = logging.getLogger(__file__)
 from ott.utils import json_utils
 from ott.utils import object_utils
 from ott.utils import html_utils
-from ott.utils import config
 
 from ott.otp_client  import otp_to_ott
 from ott.utils.parse import TripParamParser
@@ -15,7 +14,8 @@ from ott.utils.parse import TripParamParser
 from ott.geocoder.geosolr import GeoSolr
 
 class TripPlanner(object):
-    def __init__(self, solr_instance=None, solr_url='http://localhost/solr'):
+    def __init__(self, otp_url="http://localhost/prod", solr_instance=None, solr_url='http://localhost/solr'):
+        self.otp_url = otp_url
         if solr_instance and isinstance(solr_instance, GeoSolr):
             self.geo = solr_instance
         elif isinstance(solr_url, str):
@@ -38,7 +38,7 @@ class TripPlanner(object):
             pass
     
         # step 3: call the trip planner...
-        url = "{0}?{1}".format(config.get('otp'), param.otp_url_params())
+        url = "{0}?{1}".format(self.otp_url, param.otp_url_params())
         f = self.call_otp(url) 
         j=json.loads(f)
         #print json.dumps(j, sort_keys=True, indent=4);
