@@ -8,8 +8,6 @@ from ott.utils import json_utils
 from ott.utils import object_utils
 from ott.utils import html_utils
 
-from ott.data.contetn import Adverts
-
 from ott.otp_client  import otp_to_ott
 from ott.utils.parse import TripParamParser
 
