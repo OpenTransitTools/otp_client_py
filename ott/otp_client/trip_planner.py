@@ -1,6 +1,7 @@
 import sys
 import simplejson as json
 import urllib
+import contextlib
 import logging
 log = logging.getLogger(__file__)
 
@@ -76,8 +77,8 @@ class TripPlanner(object):
         ret_val = None
         try:
             log.info(url)
-            f = urllib.urlopen(url)
-            ret_val = f.read()
+            with contextlib.closing(urllib.urlopen(url)) as f:
+                ret_val = f.read()
         except Exception as e:
             log.warn(e)
         return ret_val
