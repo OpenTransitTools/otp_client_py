@@ -72,8 +72,8 @@ class TripPlanner(object):
         ret_val = json_utils.json_repr(ret_val, pretty or param.pretty_output())
         return ret_val
 
-
-    def call_otp(self, url):
+    @classmethod
+    def call_otp(cls, url):
         ret_val = None
         try:
             log.info(url)
