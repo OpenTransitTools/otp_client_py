@@ -17,22 +17,25 @@ from ott.data.content import Adverts
 from ott.data.content import Fares
 
 class TripPlanner(object):
-    def __init__(self, otp_url="http://localhost/prod", advert_url=None, fare_url=None, timeout=30, solr_instance=None, solr_url='http://localhost/solr'):
+    def __init__(self, otp_url="http://localhost/prod", adverts=None, fares=None, solr='http://localhost/solr'):
+        #import pdb; pdb.set_trace()
         self.otp_url = otp_url
 
-        if solr_instance and isinstance(solr_instance, GeoSolr):
-            self.geo = solr_instance
-        elif isinstance(solr_url, str):
-            self.geo = GeoSolr(solr_url)
+        if isinstance(solr, GeoSolr):
+            self.geo = solr
+        elif isinstance(solr, str):
+            self.geo = GeoSolr(solr)
 
-        self.adverts = None
-        self.fares   = None
-        if advert_url:
-            self.adverts = Adverts(advert_url, timeout)
-        if fare_url:
-            self.adverts = Fares(advert_url, timeout)
+        if isinstance(adverts, Adverts):
+            self.adverts = adverts
+        elif isinstance(adverts, str):
+            self.adverts = Adverts(adverts)
 
-        #import pdb; pdb.set_trace()
+        if isinstance(fares, Fares):
+            self.fares = fares
+        elif isinstance(fares, str):
+            self.fares = Fares(fares)
+
 
     def plan_trip(self, request=None, pretty=False):
         """ "powell%20blvd::45.49063653,-122.4822897"  "45.433507,-122.559709"
