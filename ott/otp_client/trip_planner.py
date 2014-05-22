@@ -64,7 +64,7 @@ class TripPlanner(object):
         # step 5: parse the OTP trip plan into OTT format
         ret_val = {}
         try:
-            plan = otp_to_ott.Plan(j['plan'], param)
+            plan = otp_to_ott.Plan(jsn=j['plan'], params=param, fares=self.fares)
             ret_val['plan'] = plan
 
             if self.adverts:

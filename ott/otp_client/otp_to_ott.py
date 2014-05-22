@@ -354,15 +354,15 @@ class Alert(object):
 class Fare(object):
     ''' 
     '''
-    def __init__(self, jsn):
+    def __init__(self, jsn, fares):
         self.adult       = self.get_fare(jsn, '$2.50')
-        self.adult_day   = "$5.00"
-        self.honored     = "$1.00"
-        self.honored_day = "$2.00"
-        self.youth       = "$1.65"
-        self.youth_day   = "$3.30"
-        self.tram        = "$4.00"
-        self.note        = None
+        self.adult_day   = fares.query("adult_day",   "$5.00")
+        self.honored     = fares.query("honored",     "$1.00")
+        self.honored_day = fares.query("honored_day", "$2.00")
+        self.youth       = fares.query("youth",       "$1.65")
+        self.youth_day   = fares.query("youth_day",   "$3.30")
+        self.tram        = fares.query("tram",        "$4.00")
+        self.notes       = fares.query("notes")
 
     def get_fare(self, jsn, def_val):
         '''  TODO -- need to figure out exceptions and populate self.note 
@@ -563,7 +563,7 @@ class Leg(object):
 class Itinerary(object):
     '''
     '''
-    def __init__(self, jsn, itin_num, url):
+    def __init__(self, jsn, itin_num, url, fares):
         self.dominant_mode = None
         self.selected = False
         self.has_alerts = False
@@ -571,7 +571,7 @@ class Itinerary(object):
         self.url = url
         self.itin_num = itin_num
         self.transfers = jsn['transfers']
-        self.fare = Fare(jsn)
+        self.fare = Fare(jsn, fares)
         self.date_info = DateInfoExtended(jsn)
         self.legs = self.parse_legs(jsn['legs'])
 
@@ -631,15 +631,15 @@ class Plan(object):
         contains these elements:
           self.from, self.to, self.params, self.arrive_by, self.optimize (plus other helpers 
     '''
-    def __init__(self, jsn, params=None, path="planner.html?itin_num={0}"):
+    def __init__(self, jsn, params=None, fares=None, path="planner.html?itin_num={0}"):
         ''' creates a self.from and self.to element in the Plan object '''
         Place.factory(jsn['from'], self, 'from')
         Place.factory(jsn['to'],   self, 'to')
-        self.itineraries = self.parse_itineraries(jsn['itineraries'], path, params)
+        self.itineraries = self.parse_itineraries(jsn['itineraries'], path, params, fares)
         self.set_plan_params(params)
 
 
-    def parse_itineraries(self, itineraries, path, params):
+    def parse_itineraries(self, itineraries, path, params, fares):
         '''  TODO explain me...
         '''
         ret_val = []
@@ -649,7 +649,7 @@ class Plan(object):
             if params: 
                 url_params = params.ott_url_params()
             url = self.make_itin_url(path, url_params, itin_num)
-            itin = Itinerary(jsn, itin_num, url)
+            itin = Itinerary(jsn, itin_num, url, fares)
             ret_val.append(itin)
 
         # set the selected 
