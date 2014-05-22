@@ -205,7 +205,7 @@ class Elevation(object):
                                 rise = (first_elev - elev) 
                                 slope = rise / run 
                                 if slope > ret_val['down']:
-                                     ret_val['down'] = slope
+                                    ret_val['down'] = slope
                                 first_dist = dist
 
                             # step 3b: tell algorithm that we're going up... 
@@ -220,7 +220,7 @@ class Elevation(object):
                                 rise = elev - first_elev
                                 slope = rise / run 
                                 if slope > ret_val['up']:
-                                     ret_val['up'] = slope
+                                    ret_val['up'] = slope
                                 first_dist = dist
 
                             # step 5b: tell algorithm that we're going down now...
@@ -244,7 +244,7 @@ class Elevation(object):
 
             ret_val['up']   = round(ret_val['up']   * 100, 1)
             ret_val['down'] = round(ret_val['down'] * 100, 1)
-        except Exception as e:
+        except Exception, e:
             log.warning(e)
         return ret_val
 
@@ -283,8 +283,8 @@ class Elevation(object):
             # find how much of a rise and fall in feet there are from the avg height
             self.rise_ft = "{0:.1f}".format(rise)
             self.fall_ft = "{0:.1f}".format(fall)
-        except Exception as ex:
-            log.warning(ex)
+        except Exception, e:
+            log.warning(e)
 
 
 class Place(object):
@@ -352,7 +352,7 @@ class Alert(object):
 
 
 class Fare(object):
-    ''' TODO: - read (periodically) a config file
+    ''' 
     '''
     def __init__(self, jsn):
         self.adult       = self.get_fare(jsn, '$2.50')
@@ -378,6 +378,17 @@ class Fare(object):
             pass
         return ret_val
 
+    def update_fare_info(self,  def_val):
+        ''' read (periodically) a config file containing all fares an agency might present
+        '''
+        ret_val = def_val
+        try:
+            if datetime.now() - self.last_update > timedelta(minutes = self.avert_timeout):
+                log.debug("updating the advert content")
+                self.last_update = datetime.now()
+        except Exception, e:
+            pass
+        return ret_val
 
 class Stop(object):
     '''

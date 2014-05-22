@@ -13,10 +13,11 @@ from ott.otp_client  import otp_to_ott
 from ott.utils.parse import TripParamParser
 
 from ott.geocoder.geosolr import GeoSolr
-from ott.data.content import Adverts 
+from ott.data.content import Adverts
+from ott.data.content import Fares
 
 class TripPlanner(object):
-    def __init__(self, otp_url="http://localhost/prod", advert_url=None, advert_timeout=30, solr_instance=None, solr_url='http://localhost/solr'):
+    def __init__(self, otp_url="http://localhost/prod", advert_url=None, fare_url=None, timeout=30, solr_instance=None, solr_url='http://localhost/solr'):
         self.otp_url = otp_url
 
         if solr_instance and isinstance(solr_instance, GeoSolr):
@@ -25,8 +26,12 @@ class TripPlanner(object):
             self.geo = GeoSolr(solr_url)
 
         self.adverts = None
+        self.fares   = None
         if advert_url:
-            self.adverts = Adverts(advert_url, advert_timeout)
+            self.adverts = Adverts(advert_url, timeout)
+        if fare_url:
+            self.adverts = Fares(advert_url, timeout)
+
         #import pdb; pdb.set_trace()
 
     def plan_trip(self, request=None, pretty=False):
