@@ -458,7 +458,8 @@ class Step(object):
         self.name = jsn['streetName']
         self.lat  = jsn['lat']
         self.lon  = jsn['lon']
-        self.distance_feet  = jsn['distance']
+        self.distance_meters = jsn['distance']
+        self.distance_feet = m_to_ft(jsn['distance'])
         self.distance = pretty_distance(self.distance_feet)
         self.compass_direction = self.get_direction(jsn['absoluteDirection'])
         self.relative_direction = self.get_direction(jsn['relativeDirection'])
@@ -511,7 +512,8 @@ class Leg(object):
 
         self.date_info = DateInfo(jsn)
         self.compass_direction = self.get_compass_direction()
-        self.distance_feet = jsn['distance']
+        self.distance_meters = jsn['distance']
+        self.distance_feet = m_to_ft(jsn['distance'])
         self.distance = pretty_distance(self.distance_feet)
 
         # transit related attributes
@@ -806,6 +808,11 @@ def seconds_to_hours_minutes(secs, def_val=None, min_secs=60):
             m = m - min
             hour = int(math.floor(m / 60))
     return hour,min
+
+
+def m_to_ft(m):
+    ret_val = float(m) * 3.28
+    return ret_val
 
 
 def distance_dict(distance, measure):
