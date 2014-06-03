@@ -160,21 +160,21 @@ class Elevation(object):
     def make_points(cls, steps):
         ''' parse leg for list of elevation points and distances
         '''
-        point_array  = None
-        point_string = None
+        points_array  = None
+        points_string = None
         try:
             points = [] 
             for s in steps:
                 for e in s['elevation']: 
                     elev = e['second']
                     dist = e['first']
-                    points.append(elev)
+                    points.append(round(elev, 2))
             if len(points) > 0:
-                point_array  = points
-                point_string = cls.make_point_string(points)
+                points_array  = points
+                points_string = cls.make_point_string(points)
         except Exception as e:
             log.warning(e)
-        return point_array, point_string
+        return points_array, points_string
 
     @classmethod
     def find_max_grade(cls, steps):
