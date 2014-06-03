@@ -102,7 +102,7 @@ class DateInfoExtended(DateInfo):
 class Elevation(object):
     def __init__(self, steps):
         self.points   = None
-        self.point_array = None
+        self.points_array = None
         self.distance = None
         self.start_ft = None
         self.end_ft   = None
@@ -135,11 +135,11 @@ class Elevation(object):
     def make_point_string(cls, points, max_len=50):
         '''
         '''
-        point_array = points
+        points_array = points
 
         if len(points) > (max_len * 1.15):
             # reduce the point array down to something around the size of max_len (or smaller)
-            point_array = []
+            points_array = []
 
             # slice the array up into chunks
             # @see http://stackoverflow.com/questions/1335392/iteration-over-list-slices (thank you Nadia)
@@ -151,10 +151,10 @@ class Elevation(object):
             # average up the slices
             for s in list_of_slices:
                 avg = sum(s) / len(s)
-                point_array.append(avg)
+                points_array.append(avg)
 
-        point_string = ','.join(["{0:.2f}".format(p) for p in point_array])
-        return point_string
+        points_string = ','.join(["{0:.2f}".format(p) for p in points_array])
+        return points_string
 
     @classmethod
     def make_points(cls, steps):
