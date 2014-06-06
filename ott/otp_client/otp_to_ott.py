@@ -180,6 +180,45 @@ class Elevation(object):
     def find_max_grade(cls, steps):
         ''' parse leg for list of elevation points and distances
         '''
+        r = {'up':0, 'down':0, 'ue':0, 'ud':0, 'de':0, 'dd':0}
+        ret_val = r
+        try:
+            for s in steps:
+                first = True
+                going_up = False
+                for e in s['elevation']: 
+                    dist = e['first']
+                    elev = e['second']
+
+                    if first:
+                        first = False
+                        r['ue'] = elev
+                        r['ud'] = dist
+                        r['de'] = elev
+                        r['dd'] = dist
+                    else:
+                        # going up
+                        if elev > r['lue']:
+                            # set up vals
+                            r['lue'] = elev
+                            r['lud'] = dist
+
+                            # set down vals
+                            going_up = True
+                        elif elev < r['lue']:
+                            last_elev = elev
+
+                    print elev
+        except Exception, e:
+            log.warning(e)
+
+        return ret_val
+
+
+    @classmethod
+    def xfind_max_grade(cls, steps):
+        ''' parse leg for list of elevation points and distances
+        '''
         #import pdb; pdb.set_trace()
 
         ret_val = {'up':0, 'down':0}
@@ -246,6 +285,7 @@ class Elevation(object):
             ret_val['down'] = round(ret_val['down'] * 100, 1)
         except Exception, e:
             log.warning(e)
+
         return ret_val
 
 
