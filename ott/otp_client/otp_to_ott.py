@@ -376,7 +376,7 @@ class Alert(object):
         self.start_date_pretty = dt.strftime("%B %d").replace(' 0',' ')  # "Monday, March 4, 2013"
         self.start_time_pretty = dt.strftime(" %I:%M %p").replace(' 0',' ').lower().strip()  # "1:22 pm"
         self.long_term = False
-        if dt < datetime.datetime.today():
+        if datetime.datetime.today() - dt > timedelta(days=35):
             self.long_term = True
         self.future = False
         if dt > datetime.datetime.today():
