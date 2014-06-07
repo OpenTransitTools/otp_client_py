@@ -372,10 +372,16 @@ class Alert(object):
 
         self.start_date = jsn['effectiveStartDate']
         dt = datetime.datetime.fromtimestamp(self.start_date / 1000)
-        self.start_date_pretty = dt.strftime("%B %d @ %I:%M%p").replace(' 0',' ')  # "Monday, March 4, 2013"
+        self.start_date_pretty = dt.strftime("%B %d").replace(' 0',' ')  # "Monday, March 4, 2013"
+        self.start_time_pretty = dt.strftime(" %I:%M %p").replace(' 0',' ').lower().strip()  # "1:22 pm"
+        self.long_term = False
         self.future = False
+        if dt < datetime.datetime.today() - 30:
+            self.long_term = True
         if dt > datetime.datetime.today():
             self.future = True
+            if self.url == "http://trimet.org/alerts/":
+                self.url = "http://trimet.org/alerts/future"
 
     @classmethod
     def factory(cls, jsn, def_val=None):
