@@ -5,6 +5,7 @@ import math
 from decimal import *
 from fractions import Fraction
 import datetime
+from datetime import timedelta
 from dateutil import tz
 import simplejson as json
 
@@ -375,9 +376,9 @@ class Alert(object):
         self.start_date_pretty = dt.strftime("%B %d").replace(' 0',' ')  # "Monday, March 4, 2013"
         self.start_time_pretty = dt.strftime(" %I:%M %p").replace(' 0',' ').lower().strip()  # "1:22 pm"
         self.long_term = False
-        self.future = False
-        if dt < datetime.datetime.today() - 30:
+        if dt < datetime.datetime.today():
             self.long_term = True
+        self.future = False
         if dt > datetime.datetime.today():
             self.future = True
             if self.url == "http://trimet.org/alerts/":
@@ -430,10 +431,11 @@ class Fare(object):
         ret_val = def_val
         try:
             if datetime.now() - self.last_update > timedelta(minutes = self.avert_timeout):
-                log.debug("updating the advert content")
+                log.warning("updating the advert content")
                 self.last_update = datetime.now()
         except Exception, e:
-            pass
+            log.warning("ERROR updating the advert content {0}".format(e))
+
         return ret_val
 
 class Stop(object):
