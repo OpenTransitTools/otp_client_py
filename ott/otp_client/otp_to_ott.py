@@ -349,7 +349,7 @@ class Place(object):
 
         return ret_val
 
-    def make_img_url(self, url="http://maps.trimet.org/eapi/ws/V1/mapimage/format/png/width/300/height/288/zoom/7/coord/%(lon)s,%(lat)s%(icon)s", **kwargs):
+    def make_img_url(self, url="http://maps.trimet.org/eapi/ws/V1/mapimage/format/png/width/300/height/288/zoom/8/coord/%(lon)s,%(lat)s%(icon)s", **kwargs):
         return url % kwargs
 
     @classmethod
