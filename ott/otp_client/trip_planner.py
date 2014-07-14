@@ -44,7 +44,7 @@ class TripPlanner(object):
         # step 1: parse params
         param = TripParamParser(request)
 
-        # step 2: parse params -- note, changes param object implicitly in the call
+        # step 2: handle any geocoding needing to be done -- note, changes param object implicitly in the call
         msg = self.geocode(param)
         if msg:
             # TODO -- trip error or plan?
