@@ -36,6 +36,9 @@ class DateInfo(object):
         self.end_time = end.strftime(" %I:%M%p").lower().replace(' 0','')    # "3:44pm" -- note, keep pre-space
         self.duration_ms = jsn['duration']
         self.duration = ms_to_minutes(self.duration_ms, is_pretty=True, show_hours=True)
+        self.day   = start.day
+        self.month = start.month
+        self.year  = start.year
 
 
 class DateInfoExtended(DateInfo):
@@ -86,8 +89,8 @@ class DateInfoExtended(DateInfo):
         # step 5: drive time...unused as of now...
         self.drive_time_hours = None
         self.drive_time_mins = None
-
         self.text = self.get_text()
+
 
     def get_text(self):
         '''
@@ -352,6 +355,10 @@ class Place(object):
     def make_img_url(self, url="http://maps.trimet.org/eapi/ws/V1/mapimage/format/png/width/300/height/288/zoom/8/coord/%(lon)s,%(lat)s%(icon)s", **kwargs):
         return url % kwargs
 
+    def append_params_schedule_url(self, route=None, month=None, day=None):
+        if self.stop:
+            self.stop.append_params_schedule_url(route, month, day)
+
     @classmethod
     def factory(cls, jsn, obj=None, name=None):
         ''' will create a Place object from json (jsn) data, 
@@ -361,7 +368,6 @@ class Place(object):
         p = Place(jsn, name)
         if obj and name:
             obj.__dict__[name] = p
-
         return p
 
 
@@ -455,12 +461,20 @@ class Stop(object):
     def make_schedule_url(self, url="stop_schedule.html?stop_id=%(id)s", **kwargs):
         return url % kwargs
 
+    def append_params_schedule_url(self, route, month, day):
+        if self.schedule:
+            if route:
+                self.schedule += "&route={0}".format(route)
+            if month and day:
+                self.schedule += "&month={0}&day={1}".format(month, day)
+
     @classmethod
     def factory(cls, jsn):
+        ret_val = None
         if jsn:
             s = Stop(jsn)
-            return s
-        return None
+            ret_val = s
+        return ret_val
 
 
 class Route(object):
@@ -550,8 +564,8 @@ class Leg(object):
     def __init__(self, jsn):
         self.mode = jsn['mode']
 
-        Place.factory(jsn['from'], self, 'from')
-        Place.factory(jsn['to'],   self, 'to')
+        fm = Place.factory(jsn['from'], self, 'from')
+        to = Place.factory(jsn['to'],   self, 'to')
 
         self.steps = self.get_steps(jsn)
         self.elevation = None
@@ -573,6 +587,9 @@ class Leg(object):
         # mode specific config
         if self.is_transit_mode():
             self.route = Route(jsn)
+
+            fm.append_params_schedule_url(self.route.id, self.date_info.month, self.date_info.day)
+            to.append_params_schedule_url(self.route.id, self.date_info.month, self.date_info.day)
             if 'alerts' in jsn:
                 self.alerts = Alert.factory(jsn['alerts'])
             self.interline = jsn['interlineWithPreviousLeg']
