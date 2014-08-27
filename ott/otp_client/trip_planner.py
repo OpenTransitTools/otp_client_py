@@ -40,11 +40,12 @@ class TripPlanner(object):
     def plan_trip(self, request=None, pretty=False):
         """ "powell%20blvd::45.49063653,-122.4822897"  "45.433507,-122.559709"
         """
-    
+
         # step 1: parse params
         param = TripParamParser(request)
 
         # step 2: handle any geocoding needing to be done -- note, changes param object implicitly in the call
+        import pdb; pdb.set_trace()
         msg = self.geocode(param)
         if msg:
             # TODO -- trip error or plan?
