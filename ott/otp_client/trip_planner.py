@@ -45,7 +45,7 @@ class TripPlanner(object):
         param = TripParamParser(request)
 
         # step 2: handle any geocoding needing to be done -- note, changes param object implicitly in the call
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         msg = self.geocode(param)
         if msg:
             # TODO -- trip error or plan?
