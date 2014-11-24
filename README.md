@@ -1,6 +1,4 @@
-otp_client_java
+otp_client_py
 ===============
 
-Java client for OTP
-(also used for interface of old TM to OTP)
-
+Python client for OTP
