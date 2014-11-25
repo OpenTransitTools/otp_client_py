@@ -408,14 +408,15 @@ class Fare(object):
     ''' 
     '''
     def __init__(self, jsn, fares):
-        self.adult       = self.get_fare(jsn, '$2.50')
-        self.adult_day   = fares.query("adult_day",   "$5.00")
-        self.honored     = fares.query("honored",     "$1.00")
-        self.honored_day = fares.query("honored_day", "$2.00")
-        self.youth       = fares.query("youth",       "$1.65")
-        self.youth_day   = fares.query("youth_day",   "$3.30")
-        self.tram        = fares.query("tram",        "$4.00")
-        self.notes       = fares.query("notes")
+        self.adult = self.get_fare(jsn, '$2.50')
+        if fares:
+            self.adult_day   = fares.query("adult_day",   "$5.00")
+            self.honored     = fares.query("honored",     "$1.00")
+            self.honored_day = fares.query("honored_day", "$2.00")
+            self.youth       = fares.query("youth",       "$1.65")
+            self.youth_day   = fares.query("youth_day",   "$3.30")
+            self.tram        = fares.query("tram",        "$4.00")
+            self.notes       = fares.query("notes")
 
     def get_fare(self, jsn, def_val):
         '''  TODO -- need to figure out exceptions and populate self.note 
