@@ -3,7 +3,7 @@ otp_client_py
 
 Python client for OTP
 
-Install and run tests:
+Install and run example app:
   0. install python 2.7, along with zc.buildout and easy_install, git
   1. git clone https://github.com/OpenTransitTools/otp_client_py.git
   2. git clone projects https://github.com/OpenTransitTools/utils.git and https://github.com/OpenTransitTools/geocode.git (see http://opentransittools.com)
