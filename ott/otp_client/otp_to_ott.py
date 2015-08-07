@@ -501,17 +501,29 @@ class Route(object):
             self.schedulemap_url = "http://c-tran.com/images/routes/{0}map.png".format(self.id)
 
 
-    def make_name(self, jsn, name_sep='-'):
-        ret_val = None
+    def make_name(self, jsn, name_sep='-', def_val=''):
+        ret_val = def_val
+
+        # step 0: grab short and long name
         sn = jsn['routeShortName']
         ln = jsn['routeLongName']
+
+        # step 1: interline names might be a combo of route names...so look for an element named jsn['route']
+        # NOTE:   we get some funky things with interline in the recent OTP code, where the record is the previous route
+        #         not the new interline route.  So we'll build a name like MAX Yellow Line-MAX Orange Line from the
+        #         crap data we have fix this (temporarily)
+        if Leg.is_interline(jsn) and 'route' in jsn:
+            rt = jsn['route']
+            if len(rt) > 0 and rt != ln:
+                ret_val = ret_val + rt
+
         if sn and len(sn) > 0:
-            ret_val = sn
-        if ln and len(ln) > 0:
-            if ret_val and name_sep:
+            if len(ret_val) > 0 and name_sep:
                 ret_val = ret_val + name_sep
-            else: 
-                ret_val = ''
+            ret_val = ret_val + sn
+        if ln and len(ln) > 0:
+            if len(ret_val) > 0 and name_sep:
+                ret_val = ret_val + name_sep
             ret_val = ret_val + ln
         return ret_val
 
@@ -593,7 +605,14 @@ class Leg(object):
             to.append_params_schedule_url(self.route.id, self.date_info.month, self.date_info.day)
             if 'alerts' in jsn:
                 self.alerts = Alert.factory(jsn['alerts'])
-            self.interline = jsn['interlineWithPreviousLeg']
+            self.interline = self.is_interline(jsn)
+
+    @classmethod
+    def is_interline(cls, jsn):
+        ret_val = False
+        if 'interlineWithPreviousLeg' in jsn:
+            ret_val = jsn['interlineWithPreviousLeg']
+        return ret_val
 
     def is_transit_mode(self):
         return self.mode in ['BUS', 'TRAM', 'RAIL', 'TRAIN', 'SUBWAY', 'CABLECAR', 'GONDOLA', 'FUNICULAR', 'FERRY']
@@ -616,7 +635,6 @@ class Leg(object):
                 ret_val.append(step)
 
         return ret_val
-
 
     def get_compass_direction(self):
         ret_val = None
