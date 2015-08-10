@@ -1,14 +1,25 @@
-*~
+.eggs
+[a-z].py
+[a-z].json
 *.py[cod]
 .settings
 COMMIT_EDITMSG
-.git/
+nohup.out
+.git
 .git/*
+.git/FETCH_HEAD
 *.old
 .*#
 .#*
 *#
 #*
+.*~
+*~
+*.bak
+x
+
+*.properties
+*.classpath
 
 # C extensions
 *.so
@@ -43,14 +54,11 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
-.*~
-*.bak
+.idea
+*.iml
+
 *.db
 *.sqlite
 *.db-journal
-nohup.out
-x.json
-.git
-.git/FETCH_HEAD
 gtfsdb.db.bkup
-x
+
