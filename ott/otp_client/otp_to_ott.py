@@ -502,29 +502,36 @@ class Route(object):
 
 
     def make_name(self, jsn, name_sep='-', def_val=''):
+        ''' create a route name based on the returned json and the long & short names
+            NOTE: we also handle a special case for interline legs
+        '''
         ret_val = def_val
 
         # step 0: grab short and long name
         sn = jsn['routeShortName']
         ln = jsn['routeLongName']
 
-        # step 1: interline names might be a combo of route names...so look for an element named jsn['route']
+        # step 1: interline name will use jsn['route'] in certain circumstances
         # NOTE:   we get some funky things with interline in the recent OTP code, where the record is the previous route
-        #         not the new interline route.  So we'll build a name like MAX Yellow Line-MAX Orange Line from the
+        #         not the new interline route.  So we'll build a name like MAX Yellow Line from the
         #         crap data we have fix this (temporarily)
-        if Leg.is_interline(jsn) and 'route' in jsn:
-            rt = jsn['route']
-            if len(rt) > 0 and rt != ln:
-                ret_val = ret_val + rt
+        if Leg.is_interline(jsn) and 'route' in jsn and len(jsn['route']) > 0 and not (jsn['route'] in ln or ln in jsn['route']):
+            ret_val = jsn['route']
+        else:
+            # step 2: build up a route name using the short and long name(s) of the route
 
-        if sn and len(sn) > 0:
-            if len(ret_val) > 0 and name_sep:
-                ret_val = ret_val + name_sep
-            ret_val = ret_val + sn
-        if ln and len(ln) > 0:
-            if len(ret_val) > 0 and name_sep:
-                ret_val = ret_val + name_sep
-            ret_val = ret_val + ln
+            # step 2a: short name, ala '33' in 33-McLoughlin or '' for MAX Orange Line
+            #
+            if sn and len(sn) > 0:
+                if len(ret_val) > 0 and name_sep:
+                    ret_val = ret_val + name_sep
+                ret_val = ret_val + sn
+
+            # step 2b: long name name, ala 'McLoughlin' in 33-McLoughlin, 'MAX Orange Line'
+            if ln and len(ln) > 0:
+                if len(ret_val) > 0 and name_sep:
+                    ret_val = ret_val + name_sep
+                ret_val = ret_val + ln
         return ret_val
 
 
