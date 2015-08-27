@@ -500,7 +500,6 @@ class Route(object):
         elif self.agency_id == 'C-TRAN':
             self.schedulemap_url = "http://c-tran.com/images/routes/{0}map.png".format(self.id)
 
-
     ''' TODO: move to a single class that allows any agency to override & customize '''
     def make_route_url(self, template):
         ''' remove trailing x on route id, fill out the id with 3 zeros, pump that id thru the url template
