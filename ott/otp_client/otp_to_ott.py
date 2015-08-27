@@ -355,9 +355,10 @@ class Place(object):
     def make_img_url(self, url="http://maps.trimet.org/eapi/ws/V1/mapimage/format/png/width/300/height/288/zoom/8/coord/%(lon)s,%(lat)s%(icon)s", **kwargs):
         return url % kwargs
 
-    def append_params_schedule_url(self, route=None, month=None, day=None):
+    def append_url_params(self, route=None, month=None, day=None):
         if self.stop:
             self.stop.append_params_schedule_url(route, month, day)
+            self.stop.append_params_info_url(month, day)
 
     @classmethod
     def factory(cls, jsn, obj=None, name=None):
@@ -468,6 +469,11 @@ class Stop(object):
                 self.schedule += "&route={0}".format(route)
             if month and day:
                 self.schedule += "&month={0}&day={1}".format(month, day)
+
+    def append_params_info_url(self, month, day):
+        if self.info:
+            if month and day:
+                self.info += "&month={0}&day={1}".format(month, day)
 
     @classmethod
     def factory(cls, jsn):
@@ -614,14 +620,16 @@ class Leg(object):
         self.interline = None
 
         # mode specific config
+        route_id = None
         if self.is_transit_mode():
             self.route = Route(jsn)
-
-            fm.append_params_schedule_url(self.route.id, self.date_info.month, self.date_info.day)
-            to.append_params_schedule_url(self.route.id, self.date_info.month, self.date_info.day)
+            route_id = self.route.id
             if 'alerts' in jsn:
                 self.alerts = Alert.factory(jsn['alerts'])
             self.interline = self.is_interline(jsn)
+
+        fm.append_url_params(route_id, self.date_info.month, self.date_info.day)
+        to.append_url_params(route_id, self.date_info.month, self.date_info.day)
 
     @classmethod
     def is_interline(cls, jsn):
