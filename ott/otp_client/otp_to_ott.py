@@ -490,16 +490,26 @@ class Route(object):
         # http://www.c-tran.com/routes/2route/map.html
         # http://trimet.org/schedules/r008.htm
         if self.agency_id == 'TriMet':
-            self.url = "http://trimet.org/schedules/r{0}.htm".format(self.id.zfill(3))
+            self.url = self.make_route_url("http://trimet.org/schedules/r{0}.htm")
         elif self.agency_id == 'C-TRAN':
             self.url = "http://c-tran.com/routes/{0}route/index.html".format(self.id)
         # http://www.c-tran.com/images/routes/2map.png
         # http://trimet.org/images/schedulemaps/008.gif
         if self.agency_id == 'TriMet':
-            self.schedulemap_url = "http://trimet.org/images/schedulemaps/{0}.gif".format(self.id.zfill(3))
+            self.schedulemap_url = self.make_route_url("http://trimet.org/images/schedulemaps/{0}.gif")
         elif self.agency_id == 'C-TRAN':
             self.schedulemap_url = "http://c-tran.com/images/routes/{0}map.png".format(self.id)
 
+
+    ''' TODO: move to a single class that allows any agency to override & customize '''
+    def make_route_url(self, template):
+        ''' remove trailing x on route id, fill out the id with 3 zeros, pump that id thru the url template
+        '''
+        id = self.id
+        id = id.rstrip('x')
+        id = id.zfill(3)
+        id = template.format(id)
+        return id
 
     def make_name(self, jsn, name_sep='-', def_val=''):
         ''' create a route name based on the returned json and the long & short names
