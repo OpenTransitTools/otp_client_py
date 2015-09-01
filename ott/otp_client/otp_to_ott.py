@@ -1,5 +1,6 @@
 """ Convert an OpenTripPlanner json itinerary response into something that's more suitable for rendering via a webpage
 """
+import re
 import sys
 import math
 from decimal import *
@@ -486,6 +487,10 @@ class Stop(object):
 
 class Route(object):
     def __init__(self, jsn):
+
+        ### TODO this code is part of view.AgencyTemplate ... use a version of util.AgencyTemplate in the FUTURE
+        self.route_id_cleanup = '\D.*'
+
         self.agency_id = jsn['agencyId']
         self.agency_name = get_element(jsn, 'agencyName')
         self.id = jsn['routeId']
@@ -506,12 +511,22 @@ class Route(object):
         elif self.agency_id == 'C-TRAN':
             self.schedulemap_url = "http://c-tran.com/images/routes/{0}map.png".format(self.id)
 
+    ### TODO this code is part of view.AgencyTemplate ... use a version of util.AgencyTemplate in the FUTURE
+    def clean_route_id(self, route_id):
+        #import pdb; pdb.set_trace()
+        ''' cleans the route_id parameter.  needed because TriMet started using id.future type route ids for route name changes
+        '''
+        ret_val = route_id
+        if self.route_id_cleanup:
+            ret_val = re.sub(self.route_id_cleanup, '', route_id)
+        return ret_val
+
+
     ''' TODO: move to a single class that allows any agency to override & customize '''
     def make_route_url(self, template):
         ''' remove trailing x on route id, fill out the id with 3 zeros, pump that id thru the url template
         '''
-        id = self.id
-        id = id.rstrip('x')
+        id = self.clean_route_id(self.id)
         id = id.zfill(3)
         id = template.format(id)
         return id
