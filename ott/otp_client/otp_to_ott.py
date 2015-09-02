@@ -41,7 +41,6 @@ class DateInfo(object):
         self.month = start.month
         self.year  = start.year
 
-
 class DateInfoExtended(DateInfo):
     '''
     '''
@@ -487,6 +486,11 @@ class Stop(object):
 
 class Route(object):
     def __init__(self, jsn):
+        ### TODO IMPORTANT
+        ### TODO We should probably use ott.data's DAO objects here ... very confusing to have multiple routes
+        ### TODO I know I wanted otp_to_ott.py to be standalone, but maybe that's a bad idea in terms of maintenance
+        ### TODO IMPORTANT
+
 
         ### TODO this code is part of view.AgencyTemplate ... use a version of util.AgencyTemplate in the FUTURE
         self.route_id_cleanup = '\D.*'
@@ -498,18 +502,21 @@ class Route(object):
         self.headsign = get_element(jsn, 'headsign')
         self.trip = get_element(jsn, 'tripId')
         self.url = None
+        self.schedulemap_url = None
+
         # http://www.c-tran.com/routes/2route/map.html
         # http://trimet.org/schedules/r008.htm
-        if self.agency_id == 'TriMet':
+        if self.agency_id.lower() == 'trimet':
             self.url = self.make_route_url("http://trimet.org/schedules/r{0}.htm")
-        elif self.agency_id == 'C-TRAN':
-            self.url = "http://c-tran.com/routes/{0}route/index.html".format(self.id)
-        # http://www.c-tran.com/images/routes/2map.png
-        # http://trimet.org/images/schedulemaps/008.gif
-        if self.agency_id == 'TriMet':
             self.schedulemap_url = self.make_route_url("http://trimet.org/images/schedulemaps/{0}.gif")
-        elif self.agency_id == 'C-TRAN':
+        elif self.agency_id.lower() == '':
+            self.url = self.make_route_url("http://trimet.org/schedules/r{0}.htm")
+            self.schedulemap_url = self.make_route_url("http://trimet.org/images/schedulemaps/{0}.gif")
+        elif self.agency_id.lower() == 'c-tran':
+            self.url = "http://c-tran.com/routes/{0}route/index.html".format(self.id)
             self.schedulemap_url = "http://c-tran.com/images/routes/{0}map.png".format(self.id)
+
+
 
     ### TODO this code is part of view.AgencyTemplate ... use a version of util.AgencyTemplate in the FUTURE
     def clean_route_id(self, route_id):
