@@ -218,81 +218,6 @@ class Elevation(object):
 
         return ret_val
 
-
-    @classmethod
-    def xfind_max_grade(cls, steps):
-        ''' parse leg for list of elevation points and distances
-        '''
-        #import pdb; pdb.set_trace()
-
-        ret_val = {'up':0, 'down':0}
-        try:
-            going_up   = None
-            first_dist = 0.0
-            first_elev = None
-            last_elev  = None
-            for s in steps:
-                for e in s['elevation']: 
-                    elev = e['second']
-                    dist = e['first']
-
-                    # step 1: not first loop iteration 
-                    if last_elev:
-                        # step 2: are we going up in elevation?
-                        if elev > last_elev:
-                            # step 3: is this a change in elevation?
-                            if going_up is False:
-
-                                # step 4: calculate the slope and save it as a return value if larger than
-                                run = (dist - first_dist)
-                                rise = (first_elev - elev) 
-                                slope = rise / run 
-                                if slope > ret_val['down']:
-                                    ret_val['down'] = slope
-                                first_dist = dist
-
-                            # step 3b: tell algorithm that we're going up... 
-                            going_up = True
-
-                        elif elev < last_elev:
-                            # step 5: is this a change in elevation?
-                            if going_up is True:
-
-                                # step 6: calculate the slope and save it as a return value if larger than
-                                run = dist - first_dist
-                                rise = elev - first_elev
-                                slope = rise / run 
-                                if slope > ret_val['up']:
-                                    ret_val['up'] = slope
-                                first_dist = dist
-
-                            # step 5b: tell algorithm that we're going down now...
-                            going_up = True
-
-                        else:
-                            # TODO: 
-                            # do we have to do anything when the distance increases, but the elevation stays the same?
-                            # what happens if we exist out of the loop at this point?  Don't we have to catch this slope at this point? 
-                            pass
-
-                        # TODO:
-                        # nested loop for each step
-                        # the 'distance' goes back to 0.0 for each step 
-                        # if we're continually going up, then maybe we have to add stuff here
-                        # or, maybe we calculate slope for each step ....  slope probably doesn't change for multiple steps
-                        # ...
-                    else:
-                        first_elev = elev
-                    last_elev = elev
-
-            ret_val['up']   = round(ret_val['up']   * 100, 1)
-            ret_val['down'] = round(ret_val['down'] * 100, 1)
-        except Exception, e:
-            log.warning(e)
-
-        return ret_val
-
-
     def set_marks(self):
         ''' finds start / end / high / low
         '''
@@ -501,17 +426,20 @@ class Route(object):
         self.name = self.make_name(jsn)
         self.headsign = get_element(jsn, 'headsign')
         self.trip = get_element(jsn, 'tripId')
-        self.url = None
-        self.schedulemap_url = None
+        url = self.url = get_element(jsn, 'url')
+        if url is None:
+            url = self.url = get_element(jsn, 'agencyUrl')
+        self.url = url
+        self.schedulemap_url = url
 
         # http://www.c-tran.com/routes/2route/map.html
         # http://trimet.org/schedules/r008.htm
         if self.agency_id.lower() == 'trimet':
             self.url = self.make_route_url("http://trimet.org/schedules/r{0}.htm")
             self.schedulemap_url = self.make_route_url("http://trimet.org/images/schedulemaps/{0}.gif")
-        elif self.agency_id.lower() == '':
-            self.url = self.make_route_url("http://trimet.org/schedules/r{0}.htm")
-            self.schedulemap_url = self.make_route_url("http://trimet.org/images/schedulemaps/{0}.gif")
+        elif self.agency_id.lower() == 'psc':
+            self.url = self.make_route_url("http://www.portlandstreetcar.org/node/3")
+            self.schedulemap_url = self.make_route_url("http://www.portlandstreetcar.org/node/4")
         elif self.agency_id.lower() == 'c-tran':
             self.url = "http://c-tran.com/routes/{0}route/index.html".format(self.id)
             self.schedulemap_url = "http://c-tran.com/images/routes/{0}map.png".format(self.id)
@@ -558,7 +486,6 @@ class Route(object):
             # step 2: build up a route name using the short and long name(s) of the route
 
             # step 2a: short name, ala '33' in 33-McLoughlin or '' for MAX Orange Line
-            #
             if sn and len(sn) > 0:
                 if len(ret_val) > 0 and name_sep:
                     ret_val = ret_val + name_sep
