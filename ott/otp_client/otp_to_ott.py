@@ -4,18 +4,14 @@ import re
 import sys
 import math
 from decimal import *
-from fractions import Fraction
 import datetime
 from datetime import timedelta
-from dateutil import tz
 import simplejson as json
 
 from ott.utils import object_utils
 from ott.utils import json_utils
-from ott.utils import config
 
 import logging
-config.config_logger()
 log = logging.getLogger(__file__)
 
 
@@ -23,6 +19,7 @@ class Error(object):
     def __init__(self, jsn, params=None):
         self.id  = jsn['id']
         self.msg = jsn['msg']
+
 
 class DateInfo(object):
     def __init__(self, jsn):
@@ -40,6 +37,7 @@ class DateInfo(object):
         self.day   = start.day
         self.month = start.month
         self.year  = start.year
+
 
 class DateInfoExtended(DateInfo):
     '''
@@ -298,8 +296,9 @@ class Place(object):
 
 
 class Alert(object):
-    def __init__(self, jsn):
+    def __init__(self, jsn, route_id=None):
         self.type = 'ROUTE'
+        self.route_id = route_id
         self.text = jsn['alertDescriptionText']['someTranslation']
         self.url = jsn['alertUrl']['someTranslation']
 
@@ -307,24 +306,24 @@ class Alert(object):
         dt = datetime.datetime.fromtimestamp(self.start_date / 1000)
         self.start_date_pretty = dt.strftime("%B %d").replace(' 0',' ')  # "Monday, March 4, 2013"
         self.start_time_pretty = dt.strftime(" %I:%M %p").replace(' 0',' ').lower().strip()  # "1:22 pm"
-        self.long_term = False
-        if datetime.datetime.today() - dt > timedelta(days=35):
-            self.long_term = True
-        self.future = False
-        if dt > datetime.datetime.today():
-            self.future = True
-            if self.url == "http://trimet.org/alerts/":
-                self.url = "http://trimet.org/alerts/future"
+        self.long_term = True if datetime.datetime.today() - dt > timedelta(days=35) else False
+        self.future = True if dt > datetime.datetime.today() else False
+
+        # TODO: trimet hack (eliminate me)
+        if "trimet.org" in self.url:
+            self.url = "http://trimet.org/#alerts/"
+            if self.route_id:
+                self.url = "{0}{1}".format(self.url, self.route_id)
 
     @classmethod
-    def factory(cls, jsn, def_val=None):
+    def factory(cls, jsn, route_id=None, def_val=None):
         ''' returns either def_val (when no alerts in the jsn input), or a list of [Alert]s
         '''
         ret_val = def_val
         if jsn and len(jsn) > 0:
             ret_val = []
             for a in jsn:
-                alert = Alert(a)
+                alert = Alert(a, route_id)
                 ret_val.append(alert)
 
         return ret_val
@@ -370,6 +369,7 @@ class Fare(object):
             log.warning("ERROR updating the advert content {0}".format(e))
 
         return ret_val
+
 
 class Stop(object):
     '''
@@ -443,8 +443,6 @@ class Route(object):
         elif self.agency_id.lower() == 'c-tran':
             self.url = "http://c-tran.com/routes/{0}route/index.html".format(self.id)
             self.schedulemap_url = "http://c-tran.com/images/routes/{0}map.png".format(self.id)
-
-
 
     ### TODO this code is part of view.AgencyTemplate ... use a version of util.AgencyTemplate in the FUTURE
     def clean_route_id(self, route_id):
@@ -574,7 +572,7 @@ class Leg(object):
             self.route = Route(jsn)
             route_id = self.route.id
             if 'alerts' in jsn:
-                self.alerts = Alert.factory(jsn['alerts'])
+                self.alerts = Alert.factory(jsn['alerts'], route_id=self.route.id)
             self.interline = self.is_interline(jsn)
 
         fm.append_url_params(route_id, self.date_info.month, self.date_info.day)
@@ -634,7 +632,6 @@ class Itinerary(object):
         self.date_info = DateInfoExtended(jsn)
         self.legs = self.parse_legs(jsn['legs'])
 
-
     def set_dominant_mode(self, leg):
         ''' dominant transit leg -- rail > bus
         '''
@@ -646,7 +643,6 @@ class Itinerary(object):
                 self.dominant_mode = 'bus'
             else:
                 self.dominant_mode = 'rail'
-
 
     def parse_legs(self, legs):
         '''
@@ -697,7 +693,6 @@ class Plan(object):
         self.itineraries = self.parse_itineraries(jsn['itineraries'], path, params, fares)
         self.set_plan_params(params)
 
-
     def parse_itineraries(self, itineraries, path, params, fares):
         '''  TODO explain me...
         '''
@@ -718,7 +713,6 @@ class Plan(object):
 
         return ret_val
 
-
     def make_itin_url(self, path, query_string, itin_num):
         '''
         '''
@@ -731,7 +725,6 @@ class Plan(object):
             log.warn("make_itin_url exception")
 
         return ret_val
-
 
     def get_selected_itinerary(self, params, max=3):
         ''' return list position (index starts at zero) of the 'selected' itinerary
@@ -747,7 +740,6 @@ class Plan(object):
             ret_val = 0
 
         return ret_val
-
 
     def pretty_mode(self, mode):
         ''' TOD0 TODO TODO localize
@@ -774,7 +766,6 @@ class Plan(object):
             ret_val = self.itineraries[i].dominant_mode
 
         return ret_val
-
 
     def set_plan_params(self, params):
         ''' passed in by a separate routine, rather than parsed from returned itinerary
