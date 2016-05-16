@@ -121,11 +121,12 @@ class TripPlanner(object):
         return ret_val
 
 
-def main(argv):
+def main():
     #import pdb; pdb.set_trace()
+
+    argv = sys.argv
     pretty = 'pretty' in argv or 'p' in argv
     trimet = 'trimet' in argv or 'tm' in argv
-    tp = None
     if trimet:
         tp = TripPlanner(otp_url="http://maps.trimet.org/prod", solr='http://maps.trimet.org/solr')
     else:
@@ -135,4 +136,4 @@ def main(argv):
     print plan
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main()
