@@ -38,6 +38,7 @@ setup(
     author_email="info@opentransittools.org",
     dependency_links=[
         'git+https://github.com/OpenTransitTools/utils.git#egg=ott.utils-0.1.0',
+        'git+https://github.com/OpenTransitTools/geocoder.git#egg=ott.geocoder-0.1.0'
     ],
     license="Mozilla-derived (http://opentransittools.com)",
     url='http://opentransittools.com',
@@ -52,5 +53,6 @@ setup(
     entry_points="""\
         [console_scripts]
         parse_otp_json = ott.otp_client.otp_to_ott:main
+        trip_planner = ott.otp_client.trip_planner:main
     """,
 )
