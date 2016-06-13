@@ -209,8 +209,6 @@ class Elevation(object):
                             going_up = True
                         elif elev < r['lue']:
                             last_elev = elev
-
-                    print elev
         except Exception, e:
             log.warning(e)
 
