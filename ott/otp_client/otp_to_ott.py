@@ -297,10 +297,46 @@ class Alert(object):
     def __init__(self, jsn, route_id=None):
         self.type = 'ROUTE'
         self.route_id = route_id
-        self.text = jsn['alertDescriptionText']['someTranslation']
-        self.url = jsn['alertUrl']['someTranslation']
 
-        self.start_date = jsn['effectiveStartDate']
+        text = url = start_date = None
+        try:
+            """ OTP 0.10.x format
+                "alerts":[
+                {
+                    "alertDescriptionText":{
+                      "translations":{"":"The westbound stop on NE Dekum at M L King is closed for construction.  Use stop at 6th."},
+                      "someTranslation":"The westbound stop on NE Dekum at M L King is closed for construction.  Use stop at 6th."},
+                    "alertUrl":{
+                          "translations":{"":"http://trimet.org/alerts/"},
+                          "someTranslation":"http://trimet.org/alerts/"},
+                    },
+                    "effectiveStartDate":1473674400000
+                }]
+            """
+            text  = jsn['alertDescriptionText']['someTranslation']
+            url   = jsn['alertUrl']['someTranslation']
+            start_date = jsn['effectiveStartDate']
+        except:
+                try:
+                    """ OTP 1.0 format
+                       "alerts":[
+                         {
+                             "alertDescriptionText":"The westbound stop on NE Dekum at M L King is closed for construction.  Use stop at 6th.",
+                             "effectiveStartDate":1473674400000,
+                             "alertUrl":"http://trimet.org/alerts/"
+                         }
+                       ]
+                    """
+                    text = jsn['alertDescriptionText']
+                    url  = jsn['alertUrl']
+                    start_date = jsn['effectiveStartDate']
+                except:
+                    log.warn("couldn't parse alerts")
+
+        self.text = text
+        self.url = url
+        self.start_date = start_date
+
         dt = datetime.datetime.fromtimestamp(self.start_date / 1000)
         self.start_date_pretty = dt.strftime("%B %d").replace(' 0',' ')  # "Monday, March 4, 2013"
         self.start_time_pretty = dt.strftime(" %I:%M %p").replace(' 0',' ').lower().strip()  # "1:22 pm"
