@@ -902,15 +902,18 @@ def pretty_distance_meters(m):
 
 def main():
     argv = sys.argv
-    if argv and len(argv) > 1 and not ('pretty' in argv or 'p' in argv):
+
+    if argv and len(argv) > 1 and ('new' in argv or 'n' in argv):
+        file = 'new/pdx2ohsu.json'
+    elif argv and len(argv) > 1 and not ('pretty' in argv or 'p' in argv):
         file = argv[1]
     else:
-        file = 'plan_bike_wes.json'
+        file = 'old/pdx2ohsu.json'
 
     try:
         f=open(file)
     except:
-        PATH='ott/otp_client/tests/json'
+        PATH='ott/otp_client/tests'
         path="{0}/{1}".format(PATH, file)
         f=open(path)
 
