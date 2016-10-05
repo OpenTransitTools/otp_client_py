@@ -484,8 +484,8 @@ class Route(object):
         ret_val = def_val
 
         # step 0: grab short and long name
-        sn = jsn['routeShortName']
-        ln = jsn['routeLongName']
+        sn = get_element(jsn, 'routeShortName')
+        ln = get_element(jsn, 'routeLongName')
 
         # step 1: interline name will use jsn['route'] in certain circumstances
         # NOTE:   we get some funky things with interline in the recent OTP code, where the record is the previous route
