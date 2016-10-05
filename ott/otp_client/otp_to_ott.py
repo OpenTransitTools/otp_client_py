@@ -258,7 +258,7 @@ class Place(object):
         self.name = jsn['name']
         self.lat  = jsn['lat']
         self.lon  = jsn['lon']
-        self.stop = Stop.factory(jsn['stopId'])
+        self.stop = Stop.factory(jsn)
         self.map_img = self.make_img_url(lon=self.lon, lat=self.lat, icon=self.endpoint_icon(name))
 
     def endpoint_icon(self, name):
@@ -374,11 +374,26 @@ class Stop(object):
     '''
     def __init__(self, jsn, name=None):
         # "stop": {"agencyId":"TriMet", "name":"SW Arthur & 1st", "id":"143","info":"stop.html?stop_id=143", "schedule":"stop_schedule.html?stop_id=143"},
-        self.agency   = jsn['agencyId']
         self.name     = name
-        self.id       = jsn['id']
+        self.agency   = None
+        self.id       = None
+        self.get_id_and_agency(jsn)
         self.info     = self.make_info_url(id=self.id)
         self.schedule = self.make_schedule_url(id=self.id)
+
+    def get_id_and_agency(self, jsn):
+        try:
+            # *.10.x format -- "stopId":{"agencyId":"TRIMET","id":"10579"}
+            self.agency = jsn['agencyId']
+            self.id = jsn['id']
+        except:
+            # 1.0.x format -- "stopId":"TriMet:10579",
+            try:
+                s = jsn.split(':')
+                self.agency = s[0].strip()
+                self.id = s[1].strip()
+            except:
+                log.warn("couldn't parse AGENCY nor ID from stop")
 
     def make_info_url(self, url="stop.html?stop_id=%(id)s", **kwargs):
         return url % kwargs
@@ -401,8 +416,8 @@ class Stop(object):
     @classmethod
     def factory(cls, jsn):
         ret_val = None
-        if jsn:
-            s = Stop(jsn)
+        if jsn and 'stopId' in jsn:
+            s = Stop(jsn['stopId'])
             ret_val = s
         return ret_val
 
