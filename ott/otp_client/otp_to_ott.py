@@ -569,8 +569,8 @@ class Step(object):
         self.distance_meters = jsn['distance']
         self.distance_feet = m_to_ft(jsn['distance'])
         self.distance = pretty_distance(self.distance_feet)
-        self.compass_direction = self.get_direction(jsn['absoluteDirection'])
-        self.relative_direction = self.get_direction(jsn['relativeDirection'])
+        self.compass_direction = self.get_direction(get_element(jsn, 'absoluteDirection'))
+        self.relative_direction = self.get_direction(get_element(jsn, 'relativeDirection'))
 
     @classmethod
     def get_direction(cls, dir):
@@ -581,6 +581,8 @@ class Step(object):
             ret_val = {
                 'LEFT' : dir.lower(),
                 'RIGHT': dir.lower(),
+                'HARD_LEFT' : dir.lower().replace('_', ' '),
+                'HARD_RIGHT': dir.lower().replace('_', ' '),
                 'CONTINUE': dir.lower(),
 
                 'NORTH': dir.lower(),
