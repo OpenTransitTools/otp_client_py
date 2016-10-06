@@ -466,8 +466,9 @@ class Stop(object):
     @classmethod
     def factory(cls, jsn):
         ret_val = None
-        if jsn and 'stopId' in jsn:
-            s = Stop(jsn['stopId'])
+        stop_jsn = get_element(jsn, 'stopId')
+        if stop_jsn:
+            s = Stop(stop_jsn)
             ret_val = s
         return ret_val
 
