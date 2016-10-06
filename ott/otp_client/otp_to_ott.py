@@ -14,6 +14,16 @@ from ott.utils import json_utils
 import logging
 log = logging.getLogger(__file__)
 
+def remove_agency_from_id(id):
+    ''' OTP 1.0 has TriMet:1 for trip and route ids
+    '''
+    ret_val = id
+    if id and ":" in id:
+        v = id.split(":")
+        if v and len(v) > 1 and len(v[1]) > 0:
+            ret_val = v[1].strip()
+    return ret_val
+
 
 class Error(object):
     def __init__(self, jsn, params=None):
@@ -420,14 +430,14 @@ class Stop(object):
     def get_id_and_agency(self, jsn):
         try:
             # *.10.x format -- "stopId":{"agencyId":"TRIMET","id":"10579"}
-            self.agency = jsn['agencyId']
             self.id = jsn['id']
+            self.agency = jsn['agencyId']
         except:
             # 1.0.x format -- "stopId":"TriMet:10579",
             try:
                 s = jsn.split(':')
-                self.agency = s[0].strip()
                 self.id = s[1].strip()
+                self.agency = s[0].strip()
             except:
                 log.warn("couldn't parse AGENCY nor ID from stop")
 
@@ -471,10 +481,10 @@ class Route(object):
 
         self.agency_id = jsn['agencyId']
         self.agency_name = get_element(jsn, 'agencyName')
-        self.id = jsn['routeId']
+        self.id = remove_agency_from_id(jsn['routeId'])
         self.name = self.make_name(jsn)
         self.headsign = get_element(jsn, 'headsign')
-        self.trip = get_element(jsn, 'tripId')
+        self.trip = remove_agency_from_id(get_element(jsn, 'tripId'))
         url = self.url = get_element(jsn, 'url')
         if url is None:
             url = self.url = get_element(jsn, 'agencyUrl')
