@@ -17,6 +17,8 @@ nohup.out
 *~
 *.bak
 x
+o
+n
 
 *.properties
 *.classpath
