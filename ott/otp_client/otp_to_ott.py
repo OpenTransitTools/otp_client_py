@@ -534,10 +534,6 @@ class Route(object):
         '''
         ret_val = def_val
 
-        # step 0: grab short and long name
-        sn = get_element(jsn, 'routeShortName')
-        ln = get_element(jsn, 'routeLongName')
-
         # step 1: interline name will use jsn['route'] in certain circumstances
         # NOTE:   we get some funky things with interline in the recent OTP code, where the record is the previous route
         #         not the new interline route.  So we'll build a name like MAX Yellow Line from the
@@ -547,13 +543,17 @@ class Route(object):
         else:
             # step 2: build up a route name using the short and long name(s) of the route
 
-            # step 2a: short name, ala '33' in 33-McLoughlin or '' for MAX Orange Line
+            # step 2a: grab short and long name
+            sn = get_element(jsn, 'routeShortName')
+            ln = get_element(jsn, 'routeLongName')
+
+            # step 2b: short name, ala '33' in 33-McLoughlin or '' for MAX Orange Line
             if sn and len(sn) > 0:
                 if len(ret_val) > 0 and name_sep:
                     ret_val = ret_val + name_sep
                 ret_val = ret_val + sn
 
-            # step 2b: long name name, ala 'McLoughlin' in 33-McLoughlin, 'MAX Orange Line'
+            # step 2c: long name name, ala 'McLoughlin' in 33-McLoughlin, 'MAX Orange Line'
             if ln and len(ln) > 0:
                 if len(ret_val) > 0 and name_sep:
                     ret_val = ret_val + name_sep
