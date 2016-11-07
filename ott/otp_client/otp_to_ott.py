@@ -424,6 +424,7 @@ class Stop(object):
     '''
     def __init__(self, jsn, name=None):
         # "stop": {"agencyId":"TriMet", "name":"SW Arthur & 1st", "id":"143","info":"stop.html?stop_id=143", "schedule":"stop_schedule.html?stop_id=143"},
+        #import pdb; pdb.set_trace()
         self.name     = name
         self.agency   = None
         self.id       = None
@@ -538,14 +539,14 @@ class Route(object):
         # NOTE:   we get some funky things with interline in the recent OTP code, where the record is the previous route
         #         not the new interline route.  So we'll build a name like MAX Yellow Line from the
         #         crap data we have fix this (temporarily)
+        ln = get_element(jsn, 'routeLongName')
         if Leg.is_interline(jsn) and 'route' in jsn and len(jsn['route']) > 0 and not (jsn['route'] in ln or ln in jsn['route']):
             ret_val = jsn['route']
         else:
             # step 2: build up a route name using the short and long name(s) of the route
 
-            # step 2a: grab short and long name
+            # step 2a: grab short to go along with long name captured above
             sn = get_element(jsn, 'routeShortName')
-            ln = get_element(jsn, 'routeLongName')
 
             # step 2b: short name, ala '33' in 33-McLoughlin or '' for MAX Orange Line
             if sn and len(sn) > 0:
