@@ -272,7 +272,7 @@ class Place(object):
         self.name = jsn['name']
         self.lat  = jsn['lat']
         self.lon  = jsn['lon']
-        self.stop = Stop.factory(jsn)
+        self.stop = Stop.factory(jsn, self.name)
         self.map_img = self.make_img_url(lon=self.lon, lat=self.lat, icon=self.endpoint_icon(name))
 
     def endpoint_icon(self, name):
@@ -423,7 +423,8 @@ class Stop(object):
     '''
     '''
     def __init__(self, jsn, name=None):
-        # "stop": {"agencyId":"TriMet", "name":"SW Arthur & 1st", "id":"143","info":"stop.html?stop_id=143", "schedule":"stop_schedule.html?stop_id=143"},
+        # OLD OTP: "stop": {"agencyId":"TriMet", "name":"SW Arthur & 1st", "id":"143","info":"stop.html?stop_id=143", "schedule":"stop_schedule.html?stop_id=143"},
+        # NEW OTP: "from": { "name":"SE 13th & Lambert","stopId":"TriMet:6693","stopCode":"6693","lon":-122.652906,"lat":45.468484,"arrival":1478551773000,"departure":1478551774000,"zoneId":"B","stopIndex":11,"stopSequence":12,"vertexType":"TRANSIT"}
         #import pdb; pdb.set_trace()
         self.name     = name
         self.agency   = None
@@ -465,11 +466,11 @@ class Stop(object):
                 self.info += "&month={0}&day={1}".format(month, day)
 
     @classmethod
-    def factory(cls, jsn):
+    def factory(cls, jsn, name=None):
         ret_val = None
         stop_jsn = get_element(jsn, 'stopId')
         if stop_jsn:
-            s = Stop(stop_jsn)
+            s = Stop(stop_jsn, name)
             ret_val = s
         return ret_val
 
