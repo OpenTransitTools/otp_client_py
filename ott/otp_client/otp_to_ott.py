@@ -813,15 +813,21 @@ class Plan(object):
         ''' TOD0 TODO TODO localize
         '''
         ret_val = 'Transit'
-        if 'BICYCLE' in mode and ('TRAIN' in mode or 'BUS' in mode or 'TRANSIT' in mode):
-            ret_val = 'Bike'
+        if 'BICYCLE' in mode and ('TRANSIT' in mode or ('TRAIN' in mode and 'BUS' in mode)):
+            ret_val = 'Bike to Transit'
+        elif 'BICYCLE' in mode and 'TRAIN' in mode:
+            ret_val = 'Bike to Rail'
+        elif 'BICYCLE' in mode and 'BUS' in mode:
+            ret_val = 'Bike to Bus'
+        elif 'TRANSIT' in mode:
+            ret_val = 'Transit'
         elif 'BUS' in mode:
             ret_val = 'Bus'
         elif 'TRAIN' in mode:
             ret_val = 'Rail'
-        elif mode in ('BICYCLE'):
+        elif 'BICYCLE' in mode:
             ret_val = 'Bike'
-        elif mode in ('WALK'):
+        elif 'WALK' in mode:
             ret_val = 'Walk'
         return ret_val
 
