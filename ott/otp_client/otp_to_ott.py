@@ -425,7 +425,6 @@ class Stop(object):
     def __init__(self, jsn, name=None):
         # OLD OTP: "stop": {"agencyId":"TriMet", "name":"SW Arthur & 1st", "id":"143","info":"stop.html?stop_id=143", "schedule":"stop_schedule.html?stop_id=143"},
         # NEW OTP: "from": { "name":"SE 13th & Lambert","stopId":"TriMet:6693","stopCode":"6693","lon":-122.652906,"lat":45.468484,"arrival":1478551773000,"departure":1478551774000,"zoneId":"B","stopIndex":11,"stopSequence":12,"vertexType":"TRANSIT"}
-        #import pdb; pdb.set_trace()
         self.name     = name
         self.agency   = None
         self.id       = None
@@ -512,7 +511,6 @@ class Route(object):
 
     ### TODO this code is part of view.AgencyTemplate ... use a version of util.AgencyTemplate in the FUTURE
     def clean_route_id(self, route_id):
-        #import pdb; pdb.set_trace()
         ''' cleans the route_id parameter.  needed because TriMet started using id.future type route ids for route name changes
         '''
         ret_val = route_id
@@ -812,10 +810,11 @@ class Plan(object):
     def pretty_mode(self, mode):
         ''' TOD0 TODO TODO localize
         '''
+        #import pdb; pdb.set_trace()
         ret_val = 'Transit'
-        if 'BICYCLE' in mode and ('TRANSIT' in mode or ('TRAIN' in mode and 'BUS' in mode)):
+        if 'BICYCLE' in mode and ('TRANSIT' in mode or ('RAIL' in mode and 'BUS' in mode)):
             ret_val = 'Bike to Transit'
-        elif 'BICYCLE' in mode and 'TRAIN' in mode:
+        elif 'BICYCLE' in mode and 'RAIL' in mode:
             ret_val = 'Bike to Rail'
         elif 'BICYCLE' in mode and 'BUS' in mode:
             ret_val = 'Bike to Bus'
@@ -823,7 +822,7 @@ class Plan(object):
             ret_val = 'Transit'
         elif 'BUS' in mode:
             ret_val = 'Bus'
-        elif 'TRAIN' in mode:
+        elif 'RAIL' in mode:
             ret_val = 'Rail'
         elif 'BICYCLE' in mode:
             ret_val = 'Bike'
@@ -993,7 +992,6 @@ def main():
         path="{0}/{1}".format(PATH, file)
         f=open(path)
 
-    #import pdb; pdb.set_trace()
     j=json.load(f)
     p=Plan(j['plan'])
     pretty = False
