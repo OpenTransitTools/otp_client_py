@@ -54,10 +54,13 @@ class TripPlanner(object):
             pass
 
         # step 3: call the trip planner...
-        url = "{0}?{1}".format(self.otp_url, param.otp_url_params())
+        otp_params = param
+        if otp_params.is_latest():
+            otp_params = param.clone()
+            otp_params.date_offset(day_offset=1)
+        url = "{0}?{1}".format(self.otp_url, otp_params.otp_url_params())
         f = self.call_otp(url)
         j=json.loads(f)
-        #print json.dumps(j, sort_keys=True, indent=4);
 
         # step 4: process any planner errors
         if j is None:
