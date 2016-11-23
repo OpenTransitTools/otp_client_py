@@ -38,16 +38,22 @@ class DateInfo(object):
         start = datetime.datetime.fromtimestamp(self.start_time_ms / 1000)
         end   = datetime.datetime.fromtimestamp(self.end_time_ms / 1000)
 
-        self.date = "%d/%d/%d" % (start.month, start.day, start.year) # 29/2/2012
+        self.date = "%d/%d/%d" % (start.month, start.day, start.year) # 2/29/2012
         self.pretty_date = start.strftime("%A, %B %d, %Y").replace(' 0',' ')    # "Monday, March 4, 2013"
+        self.service_date = None
+        if 'service_date' in jsn:
+            self.service_date = jsn['service_date']
+
         self.start_time  = start.strftime(" %I:%M%p").lower().replace(' 0','') # "3:40pm" -- note, keep pre-space
         self.end_time = end.strftime(" %I:%M%p").lower().replace(' 0','')    # "3:44pm" -- note, keep pre-space
-        durr = int(jsn['duration'])
+
         # OTP 1.0 has seconds not millisecs for duration
+        durr = int(jsn['duration'])
         if durr < 60000:
             durr = durr * 1000
         self.duration_ms = durr
         self.duration = ms_to_minutes(self.duration_ms, is_pretty=True, show_hours=True)
+
         self.day   = start.day
         self.month = start.month
         self.year  = start.year
