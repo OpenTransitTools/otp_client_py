@@ -46,7 +46,7 @@ class DateInfo(object):
         # in older versions, no such date
         self.service_date = None
         if 'serviceDate' in jsn:
-            self.service_date = jsn['service_date']
+            self.service_date = jsn['serviceDate']
 
         self.start_time  = start.strftime(" %I:%M%p").lower().replace(' 0','') # "3:40pm" -- note, keep pre-space
         self.end_time = end.strftime(" %I:%M%p").lower().replace(' 0','')    # "3:44pm" -- note, keep pre-space

@@ -47,7 +47,6 @@ class TripPlanner(object):
         param = TripParamParser(request)
 
         # step 2: handle any geocoding needing to be done -- note, changes param object implicitly in the call
-        #import pdb; pdb.set_trace()
         msg = self.geocode(param)
         if msg:
             # TODO -- trip error or plan?
@@ -68,6 +67,7 @@ class TripPlanner(object):
             # TODO -- trip error or plan?
 
         # step 5: parse the OTP trip plan into OTT format
+        import pdb; pdb.set_trace()
         ret_val = {}
         try:
             plan = otp_to_ott.Plan(jsn=j['plan'], params=param, fares=self.fares)
@@ -77,7 +77,8 @@ class TripPlanner(object):
                 m = plan.dominant_transit_mode()
                 l = html_utils.get_lang(request)
                 ret_val['adverts'] = self.adverts.query(m, l)
-        except:
+        except Exception, e:
+            log.info(e)
             try:
                 ret_val['error'] = otp_to_ott.Error(j['error'], param)
             except:
@@ -125,8 +126,6 @@ class TripPlanner(object):
 
 
 def main():
-    #import pdb; pdb.set_trace()
-
     argv = sys.argv
     pretty = 'pretty' in argv or 'p' in argv
     trimet = 'trimet' in argv or 'tm' in argv
