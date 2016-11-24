@@ -40,8 +40,12 @@ class DateInfo(object):
 
         self.date = "%d/%d/%d" % (start.month, start.day, start.year) # 2/29/2012
         self.pretty_date = start.strftime("%A, %B %d, %Y").replace(' 0',' ')    # "Monday, March 4, 2013"
+
+        # service_date is important to link off to proper stop timetables
+        # in OTP 1.0, we have: <serviceDate>20161123</serviceDate>
+        # in older versions, no such date
         self.service_date = None
-        if 'service_date' in jsn:
+        if 'serviceDate' in jsn:
             self.service_date = jsn['service_date']
 
         self.start_time  = start.strftime(" %I:%M%p").lower().replace(' 0','') # "3:40pm" -- note, keep pre-space
