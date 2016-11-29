@@ -42,6 +42,7 @@ class TripPlanner(object):
     def plan_trip(self, request=None, pretty=False):
         """ "powell%20blvd::45.49063653,-122.4822897"  "45.433507,-122.559709"
         """
+        #import pdb; pdb.set_trace()
 
         # step 1: parse params
         param = TripParamParser(request)
@@ -55,6 +56,8 @@ class TripPlanner(object):
         # step 3: call the trip planner...
         otp_params = param
         if otp_params.is_latest():
+            # step 3b: if we have Arr=L (latest trip), we need to increase the date by 1 day, since LATEST
+            # trip is essentially an ArriveBy 1:30am trip
             otp_params = param.clone()
             otp_params.date_offset(day_offset=1)
         url = "{0}?{1}".format(self.otp_url, otp_params.otp_url_params())
@@ -67,7 +70,6 @@ class TripPlanner(object):
             # TODO -- trip error or plan?
 
         # step 5: parse the OTP trip plan into OTT format
-        import pdb; pdb.set_trace()
         ret_val = {}
         try:
             plan = otp_to_ott.Plan(jsn=j['plan'], params=param, fares=self.fares)

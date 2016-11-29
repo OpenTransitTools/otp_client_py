@@ -38,18 +38,21 @@ class DateInfo(object):
         start = datetime.datetime.fromtimestamp(self.start_time_ms / 1000)
         end   = datetime.datetime.fromtimestamp(self.end_time_ms / 1000)
 
-        self.date = "%d/%d/%d" % (start.month, start.day, start.year) # 2/29/2012
-        self.pretty_date = start.strftime("%A, %B %d, %Y").replace(' 0',' ')    # "Monday, March 4, 2013"
+        self.start_date = "%d/%d/%d" % (start.month, start.day, start.year) # 2/29/2012
+        self.end_date = "%d/%d/%d" % (end.month, end.day, end.year) # 2/29/2012
+
+        self.start_time = start.strftime(" %I:%M%p").lower().replace(' 0','') # "3:40pm" -- note, keep pre-space
+        self.end_time = end.strftime(" %I:%M%p").lower().replace(' 0','')    # "3:44pm" -- note, keep pre-space
 
         # service_date is important to link off to proper stop timetables
         # in OTP 1.0, we have: <serviceDate>20161123</serviceDate>
-        # in older versions, no such date
-        self.service_date = None
-        if 'serviceDate' in jsn:
-            self.service_date = jsn['serviceDate']
-
-        self.start_time  = start.strftime(" %I:%M%p").lower().replace(' 0','') # "3:40pm" -- note, keep pre-space
-        self.end_time = end.strftime(" %I:%M%p").lower().replace(' 0','')    # "3:44pm" -- note, keep pre-space
+        # in older versions of OTP, there's no such date so set it to start_date
+        self.service_date = self.start_date
+        if 'serviceDate' in jsn and len(jsn['serviceDate']) == 8:
+            syear = jsn['serviceDate'][0:4]
+            smonth = jsn['serviceDate'][4:6].lstrip('0')
+            sday = jsn['serviceDate'][6:].lstrip('0')
+            self.service_date = "%d/%d/%d" % (smonth, sday, syear) # 2/29/2012
 
         # OTP 1.0 has seconds not millisecs for duration
         durr = int(jsn['duration'])
@@ -57,6 +60,9 @@ class DateInfo(object):
             durr = durr * 1000
         self.duration_ms = durr
         self.duration = ms_to_minutes(self.duration_ms, is_pretty=True, show_hours=True)
+
+        self.date = "%d/%d/%d" % (start.month, start.day, start.year) # 2/29/2012
+        self.pretty_date = start.strftime("%A, %B %d, %Y").replace(' 0',' ')    # "Monday, March 4, 2013"
 
         self.day   = start.day
         self.month = start.month
