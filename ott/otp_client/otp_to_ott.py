@@ -38,8 +38,8 @@ class DateInfo(object):
         start = datetime.datetime.fromtimestamp(self.start_time_ms / 1000)
         end   = datetime.datetime.fromtimestamp(self.end_time_ms / 1000)
 
-        self.start_date = "%d/%d/%d" % (start.month, start.day, start.year) # 2/29/2012
-        self.end_date = "%d/%d/%d" % (end.month, end.day, end.year) # 2/29/2012
+        self.start_date = "{}/{}/{}".format(start.month, start.day, start.year) # 2/29/2012
+        self.end_date = "{}/{}/{}".format(end.month, end.day, end.year) # 2/29/2012
 
         self.start_time = start.strftime(" %I:%M%p").lower().replace(' 0','') # "3:40pm" -- note, keep pre-space
         self.end_time = end.strftime(" %I:%M%p").lower().replace(' 0','')    # "3:44pm" -- note, keep pre-space
