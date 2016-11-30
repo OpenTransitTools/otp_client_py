@@ -80,11 +80,11 @@ class TripPlanner(object):
                 l = html_utils.get_lang(request)
                 ret_val['adverts'] = self.adverts.query(m, l)
         except Exception, e:
-            log.info(e)
             try:
                 ret_val['error'] = otp_to_ott.Error(j['error'], param)
             except:
-                pass
+                log.warn("I think we had a problem parsing the JSON from OTP ... see exception below:")
+                log.warn(e)
 
         ret_val = json_utils.json_repr(ret_val, pretty or param.pretty_output())
         return ret_val
