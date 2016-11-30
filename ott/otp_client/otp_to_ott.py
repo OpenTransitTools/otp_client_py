@@ -9,10 +9,12 @@ from datetime import timedelta
 import simplejson as json
 
 from ott.utils import object_utils
+from ott.utils import date_utils
 from ott.utils import json_utils
 
 import logging
 log = logging.getLogger(__file__)
+
 
 def remove_agency_from_id(id):
     ''' OTP 1.0 has TriMet:1 for trip and route ids
@@ -400,11 +402,11 @@ class Fare(object):
         self.adult = self.get_fare(jsn, '$2.50')
         if fares:
             self.adult_day   = fares.query("adult_day",   "$5.00")
-            self.honored     = fares.query("honored",     "$1.00")
-            self.honored_day = fares.query("honored_day", "$2.00")
-            self.youth       = fares.query("youth",       "$1.65")
-            self.youth_day   = fares.query("youth_day",   "$3.30")
-            self.tram        = fares.query("tram",        "$4.00")
+            self.honored     = fares.query("honored",     "$1.25")
+            self.honored_day = fares.query("honored_day", "$2.50")
+            self.youth       = fares.query("youth",       "$1.25")
+            self.youth_day   = fares.query("youth_day",   "$2.50")
+            self.tram        = fares.query("tram",        "$4.55")
             self.notes       = fares.query("notes")
 
     def get_fare(self, jsn, def_val):
@@ -657,8 +659,9 @@ class Leg(object):
                 self.alerts = Alert.factory(jsn['alerts'], route_id=self.route.id)
             self.interline = self.is_interline(jsn)
 
-        fm.append_url_params(route_id, self.date_info.month, self.date_info.day)
-        to.append_url_params(route_id, self.date_info.month, self.date_info.day)
+        svc_date = date_utils.parse_month_day_year_string(self.date_info.service_date)
+        fm.append_url_params(route_id, month=svc_date['month'], day=svc_date['day'])
+        to.append_url_params(route_id, month=svc_date['month'], day=svc_date['day'])
 
     @classmethod
     def is_interline(cls, jsn):
