@@ -52,7 +52,7 @@ class DateInfo(object):
             syear = jsn['serviceDate'][0:4]
             smonth = jsn['serviceDate'][4:6].lstrip('0')
             sday = jsn['serviceDate'][6:].lstrip('0')
-            self.service_date = "%d/%d/%d" % (smonth, sday, syear) # 2/29/2012
+            self.service_date = "{}/{}/{}".format(smonth, sday, syear) # 2/29/2012
 
         # OTP 1.0 has seconds not millisecs for duration
         durr = int(jsn['duration'])
