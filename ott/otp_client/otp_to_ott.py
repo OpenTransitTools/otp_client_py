@@ -56,7 +56,7 @@ class DateInfo(object):
             sday = jsn['serviceDate'][6:].lstrip('0')
             self.service_date = "{}/{}/{}".format(smonth, sday, syear) # 2/29/2012
         else:
-            self.service_date = self.calc_service_date(start)
+            self.service_date = self.estimate_service_date(start)
 
         # OTP 1.0 has seconds not millisecs for duration
         durr = int(jsn['duration'])
@@ -72,7 +72,7 @@ class DateInfo(object):
         self.month = start.month
         self.year  = start.year
 
-    def calc_service_date(self, start):
+    def estimate_service_date(self, start):
         ''' in OTP 1.0, we are provided a service_date that's very important to linking to proper schedules, etc...
             but in prior versions, we are missing service_date, so this rountine is going to calculate service date
             this way:  if the hour is earier than 3am, then use 'yesterday' as the service date.  This is a hack that
