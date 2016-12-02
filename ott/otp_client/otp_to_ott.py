@@ -35,6 +35,7 @@ class Error(object):
 
 class DateInfo(object):
     def __init__(self, jsn):
+        #import pdb; pdb.set_trace()
         self.start_time_ms = jsn['startTime']
         self.end_time_ms = jsn['endTime']
         start = datetime.datetime.fromtimestamp(self.start_time_ms / 1000)
@@ -49,12 +50,13 @@ class DateInfo(object):
         # service_date is important to link off to proper stop timetables
         # in OTP 1.0, we have: <serviceDate>20161123</serviceDate>
         # in older versions of OTP, there's no such date so set it to start_date
-        self.service_date = self.start_date
         if 'serviceDate' in jsn and len(jsn['serviceDate']) == 8:
             syear = jsn['serviceDate'][0:4]
             smonth = jsn['serviceDate'][4:6].lstrip('0')
             sday = jsn['serviceDate'][6:].lstrip('0')
             self.service_date = "{}/{}/{}".format(smonth, sday, syear) # 2/29/2012
+        else:
+            self.service_date = self.calc_service_date(start)
 
         # OTP 1.0 has seconds not millisecs for duration
         durr = int(jsn['duration'])
@@ -70,6 +72,16 @@ class DateInfo(object):
         self.month = start.month
         self.year  = start.year
 
+    def calc_service_date(self, start):
+        ''' in OTP 1.0, we are provided a service_date that's very important to linking to proper schedules, etc...
+            but in prior versions, we are missing service_date, so this rountine is going to calculate service date
+            this way
+        '''
+        d = start
+        if start.hour < 3:
+            d = start - timedelta(days=1)
+        ret_val = "{}/{}/{}".format(d.month, d.day, d.year) # 2/29/2012
+        return ret_val
 
 class DateInfoExtended(DateInfo):
     '''
@@ -829,7 +841,6 @@ class Plan(object):
     def pretty_mode(self, mode):
         ''' TOD0 TODO TODO localize
         '''
-        #import pdb; pdb.set_trace()
         ret_val = 'Transit'
         if 'BICYCLE' in mode and ('TRANSIT' in mode or ('RAIL' in mode and 'BUS' in mode)):
             ret_val = 'Bike to Transit'
