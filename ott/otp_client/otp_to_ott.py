@@ -77,9 +77,14 @@ class DateInfo(object):
             but in prior versions, we are missing service_date, so this rountine is going to calculate service date
             this way:  if the hour is earier than 3am, then use 'yesterday' as the service date.  This is a hack that
             works for agencies like TriMet, which do not have Owl service.
+
+            NOTE: there are often instances in parsing OTP 1.0 (non Legs) that also don't have a service_date attribute,
+                  so this routine will also be called.  (Service date is mostly used for linking a transit leg
+                  to a stop schedule, so...)
         '''
         d = start
         if start.hour < 3:
+            ''' yesterday calculation for times less than 3am '''
             d = start - timedelta(days=1)
         ret_val = "{}/{}/{}".format(d.month, d.day, d.year) # 2/29/2012
         return ret_val
