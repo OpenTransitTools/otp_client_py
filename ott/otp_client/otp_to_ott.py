@@ -75,7 +75,8 @@ class DateInfo(object):
     def calc_service_date(self, start):
         ''' in OTP 1.0, we are provided a service_date that's very important to linking to proper schedules, etc...
             but in prior versions, we are missing service_date, so this rountine is going to calculate service date
-            this way
+            this way:  if the hour is earier than 3am, then use 'yesterday' as the service date.  This is a hack that
+            works for agencies like TriMet, which do not have Owl service.
         '''
         d = start
         if start.hour < 3:
