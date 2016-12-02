@@ -89,6 +89,7 @@ class DateInfo(object):
         ret_val = "{}/{}/{}".format(d.month, d.day, d.year) # 2/29/2012
         return ret_val
 
+
 class DateInfoExtended(DateInfo):
     '''
     '''
