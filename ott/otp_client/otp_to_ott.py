@@ -17,8 +17,8 @@ log = logging.getLogger(__file__)
 
 
 def remove_agency_from_id(id):
-    ''' OTP 1.0 has TriMet:1 for trip and route ids
-    '''
+    """ OTP 1.0 has TriMet:1 for trip and route ids
+    """
     ret_val = id
     if id and ":" in id:
         v = id.split(":")
@@ -73,7 +73,7 @@ class DateInfo(object):
         self.year  = start.year
 
     def estimate_service_date(self, start):
-        ''' in OTP 1.0, we are provided a service_date that's very important to linking to proper schedules, etc...
+        """ in OTP 1.0, we are provided a service_date that's very important to linking to proper schedules, etc...
             but in prior versions, we are missing service_date, so this rountine is going to calculate service date
             this way:  if the hour is earier than 3am, then use 'yesterday' as the service date.  This is a hack that
             works for agencies like TriMet, which do not have Owl service.
@@ -81,18 +81,18 @@ class DateInfo(object):
             NOTE: there are often instances in parsing OTP 1.0 (non Legs) that also don't have a service_date attribute,
                   so this routine will also be called.  (Service date is mostly used for linking a transit leg
                   to a stop schedule, so...)
-        '''
+        """
         d = start
         if start.hour < 3:
-            ''' yesterday calculation for times less than 3am '''
+            """ yesterday calculation for times less than 3am """
             d = start - timedelta(days=1)
         ret_val = "{}/{}/{}".format(d.month, d.day, d.year) # 2/29/2012
         return ret_val
 
 
 class DateInfoExtended(DateInfo):
-    '''
-    '''
+    """
+    """
     def __init__(self, jsn):
         super(DateInfoExtended, self).__init__(jsn)
         self.extended = True
@@ -142,8 +142,8 @@ class DateInfoExtended(DateInfo):
 
 
     def get_text(self):
-        '''
-        '''
+        """
+        """
         ret_val = ''
         tot =  hour_min_string(self.total_time_hours, self.total_time_mins)
         walk = hour_min_string(self.walk_time_hours, self.walk_time_mins)
@@ -172,8 +172,8 @@ class Elevation(object):
 
     @classmethod
     def make_distance(cls, steps):
-        ''' loop through distance
-        '''
+        """ loop through distance
+        """
         ret_val = None
         try:
             dist = 0
@@ -186,8 +186,8 @@ class Elevation(object):
 
     @classmethod
     def make_point_string(cls, points, max_len=50):
-        '''
-        '''
+        """
+        """
         points_array = points
 
         if len(points) > (max_len * 1.15):
@@ -211,8 +211,8 @@ class Elevation(object):
 
     @classmethod
     def make_points(cls, steps):
-        ''' parse leg for list of elevation points and distances
-        '''
+        """ parse leg for list of elevation points and distances
+        """
         points_array  = None
         points_string = None
         try:
@@ -231,8 +231,8 @@ class Elevation(object):
 
     @classmethod
     def find_max_grade(cls, steps):
-        ''' parse leg for list of elevation points and distances
-        '''
+        """ parse leg for list of elevation points and distances
+        """
         r = {'up':0, 'down':0, 'ue':0, 'ud':0, 'de':0, 'dd':0}
         ret_val = r
         try:
@@ -266,8 +266,8 @@ class Elevation(object):
         return ret_val
 
     def set_marks(self):
-        ''' finds start / end / high / low
-        '''
+        """ finds start / end / high / low
+        """
         try:
             start = self.points_array[0]
             end   = self.points_array[len(self.points_array) - 1]
@@ -305,7 +305,7 @@ class Elevation(object):
 
 class Place(object):
     def __init__(self, jsn, name=None):
-        ''' '''
+        """ """
         self.name = jsn['name']
         self.lat  = jsn['lat']
         self.lon  = jsn['lon']
@@ -313,7 +313,7 @@ class Place(object):
         self.map_img = self.make_img_url(lon=self.lon, lat=self.lat, icon=self.endpoint_icon(name))
 
     def endpoint_icon(self, name):
-        ''' '''
+        """ """
         ret_val = ''
         if name:
             x='/extraparams/format_options=layout:{0}'
@@ -334,10 +334,10 @@ class Place(object):
 
     @classmethod
     def factory(cls, jsn, obj=None, name=None):
-        ''' will create a Place object from json (jsn) data, 
+        """ will create a Place object from json (jsn) data, 
             optionally assign the resultant object to some other object, as this alleviates the awkward 
             construct of 'from' that uses a python keyword, (e.g.,  self.__dict__['from'] = Place(j['from'])
-        '''
+        """
         p = Place(jsn, name)
         if obj and name:
             obj.__dict__[name] = p
@@ -402,8 +402,8 @@ class Alert(object):
 
     @classmethod
     def factory(cls, jsn, route_id=None, def_val=None):
-        ''' returns either def_val (when no alerts in the jsn input), or a list of [Alert]s
-        '''
+        """ returns either def_val (when no alerts in the jsn input), or a list of [Alert]s
+        """
         ret_val = def_val
         if jsn and len(jsn) > 0:
             ret_val = []
@@ -415,8 +415,8 @@ class Alert(object):
 
 
 class Fare(object):
-    ''' 
-    '''
+    """ 
+    """
     def __init__(self, jsn, fares):
         self.adult = self.get_fare(jsn, '$2.50')
         if fares:
@@ -429,10 +429,10 @@ class Fare(object):
             self.notes       = fares.query("notes")
 
     def get_fare(self, jsn, def_val):
-        '''  TODO -- need to figure out exceptions and populate self.note 
+        """  TODO -- need to figure out exceptions and populate self.note 
                   1) TRAM (GONDOLA) fare
                   2) $5.00 one-way fare, when the trip lasts longer than the transfer window
-        '''
+        """
         ret_val = def_val
         try:
             c = int(jsn['fare']['fare']['regular']['cents']) * 0.01
@@ -443,8 +443,8 @@ class Fare(object):
         return ret_val
 
     def update_fare_info(self,  def_val):
-        ''' read (periodically) a config file containing all fares an agency might present
-        '''
+        """ read (periodically) a config file containing all fares an agency might present
+        """
         ret_val = def_val
         try:
             if datetime.now() - self.last_update > timedelta(minutes = self.avert_timeout):
@@ -457,8 +457,8 @@ class Fare(object):
 
 
 class Stop(object):
-    '''
-    '''
+    """
+    """
     def __init__(self, jsn, name=None):
         # OLD OTP: "stop": {"agencyId":"TriMet", "name":"SW Arthur & 1st", "id":"143","info":"stop.html?stop_id=143", "schedule":"stop_schedule.html?stop_id=143"},
         # NEW OTP: "from": { "name":"SE 13th & Lambert","stopId":"TriMet:6693","stopCode":"6693","lon":-122.652906,"lat":45.468484,"arrival":1478551773000,"departure":1478551774000,"zoneId":"B","stopIndex":11,"stopSequence":12,"vertexType":"TRANSIT"}
@@ -548,27 +548,27 @@ class Route(object):
 
     ### TODO this code is part of view.AgencyTemplate ... use a version of util.AgencyTemplate in the FUTURE
     def clean_route_id(self, route_id):
-        ''' cleans the route_id parameter.  needed because TriMet started using id.future type route ids for route name changes
-        '''
+        """ cleans the route_id parameter.  needed because TriMet started using id.future type route ids for route name changes
+        """
         ret_val = route_id
         if self.route_id_cleanup:
             ret_val = re.sub(self.route_id_cleanup, '', route_id)
         return ret_val
 
 
-    ''' TODO: move to a single class that allows any agency to override & customize '''
+    """ TODO: move to a single class that allows any agency to override & customize """
     def make_route_url(self, template):
-        ''' remove trailing x on route id, fill out the id with 3 zeros, pump that id thru the url template
-        '''
+        """ remove trailing x on route id, fill out the id with 3 zeros, pump that id thru the url template
+        """
         id = self.clean_route_id(self.id)
         id = id.zfill(3)
         id = template.format(id)
         return id
 
     def make_name(self, jsn, name_sep='-', def_val=''):
-        ''' create a route name based on the returned json and the long & short names
+        """ create a route name based on the returned json and the long & short names
             NOTE: we also handle a special case for interline legs
-        '''
+        """
         ret_val = def_val
 
         # step 1: interline name will use jsn['route'] in certain circumstances
@@ -611,8 +611,8 @@ class Step(object):
 
     @classmethod
     def get_direction(cls, dir):
-        ''' TODO localize me 
-        '''
+        """ TODO localize me 
+        """
         ret_val = dir
         try:
             ret_val = {
@@ -638,14 +638,14 @@ class Step(object):
 
     @classmethod
     def get_relative_direction(cls, dir):
-        ''' '''
+        """ """
         ret_val = dir
         return ret_val
 
 
 class Leg(object):
-    '''
-    '''
+    """
+    """
     def __init__(self, jsn):
         self.mode = jsn['mode']
 
@@ -722,8 +722,8 @@ class Leg(object):
 
 
 class Itinerary(object):
-    '''
-    '''
+    """
+    """
     def __init__(self, jsn, itin_num, url, fares):
         self.dominant_mode = None
         self.selected = False
@@ -737,8 +737,8 @@ class Itinerary(object):
         self.legs = self.parse_legs(jsn['legs'])
 
     def set_dominant_mode(self, leg):
-        ''' dominant transit leg -- rail > bus
-        '''
+        """ dominant transit leg -- rail > bus
+        """
         if object_utils.has_content(self.dominant_mode) is False:
             self.dominant_mode = object_utils.safe_str(leg.mode).lower()
 
@@ -749,8 +749,8 @@ class Itinerary(object):
                 self.dominant_mode = 'rail'
 
     def parse_legs(self, legs):
-        '''
-        '''
+        """
+        """
         ret_val = []
 
         # step 1: build the legs
@@ -785,21 +785,21 @@ class Itinerary(object):
 
 
 class Plan(object):
-    ''' top level class of the ott 'plan' object tree
+    """ top level class of the ott 'plan' object tree
 
         contains these elements:
           self.from, self.to, self.params, self.arrive_by, self.optimize (plus other helpers 
-    '''
+    """
     def __init__(self, jsn, params=None, fares=None, path="planner.html?itin_num={0}"):
-        ''' creates a self.from and self.to element in the Plan object '''
+        """ creates a self.from and self.to element in the Plan object """
         Place.factory(jsn['from'], self, 'from')
         Place.factory(jsn['to'],   self, 'to')
         self.itineraries = self.parse_itineraries(jsn['itineraries'], path, params, fares)
         self.set_plan_params(params)
 
     def parse_itineraries(self, itineraries, path, params, fares):
-        '''  TODO explain me...
-        '''
+        """  TODO explain me...
+        """
         ret_val = []
         for i, jsn in enumerate(itineraries):
             itin_num = i+1
@@ -818,8 +818,8 @@ class Plan(object):
         return ret_val
 
     def make_itin_url(self, path, query_string, itin_num):
-        '''
-        '''
+        """
+        """
         ret_val = None
         try:
             ret_val = path.format(itin_num)
@@ -831,9 +831,9 @@ class Plan(object):
         return ret_val
 
     def get_selected_itinerary(self, params, max=3):
-        ''' return list position (index starts at zero) of the 'selected' itinerary
+        """ return list position (index starts at zero) of the 'selected' itinerary
             @see ParamParser
-        '''
+        """
         ret_val = 0
         if params:
             ret_val = params.get_itin_num_as_int()
@@ -846,8 +846,8 @@ class Plan(object):
         return ret_val
 
     def pretty_mode(self, mode):
-        ''' TOD0 TODO TODO localize
-        '''
+        """ TOD0 TODO TODO localize
+        """
         ret_val = 'Transit'
         if 'BICYCLE' in mode and ('TRANSIT' in mode or ('RAIL' in mode and 'BUS' in mode)):
             ret_val = 'Bike to Transit'
@@ -868,7 +868,7 @@ class Plan(object):
         return ret_val
 
     def dominant_transit_mode(self, i=0):
-        ''' TODO ... make better...parse itin affect adverts (at least) '''
+        """ TODO ... make better...parse itin affect adverts (at least) """
         ret_val = 'rail'
         if len(self.itineraries) < i:
             i = len(self.itineraries) - 1
@@ -878,8 +878,8 @@ class Plan(object):
         return ret_val
 
     def set_plan_params(self, params):
-        ''' passed in by a separate routine, rather than parsed from returned itinerary
-        '''
+        """ passed in by a separate routine, rather than parsed from returned itinerary
+        """
         if params:
             self.params  = {
                 "is_arrive_by" : params.arrive_depart,
@@ -895,12 +895,12 @@ class Plan(object):
         self.max_walk = "1.4"
 
 
-'''
+"""
 UTILITY METHODS
-'''
+"""
 def get_element(jsn, name, def_val=None):
-    '''
-    '''
+    """
+    """
     ret_val = def_val
     try:
         v = jsn[name]
@@ -955,8 +955,8 @@ def hour_min_string(h, m, fmt='{0} {1}', sp=', '):
 
 
 def seconds_to_hours_minutes(secs, def_val=None, min_secs=60):
-    '''
-    '''
+    """
+    """
     min = def_val
     hour = def_val
     if(secs > min_secs):
@@ -977,8 +977,8 @@ def distance_dict(distance, measure):
     return {'distance':distance, 'measure':measure}
 
 def pretty_distance(feet):
-    ''' TODO localize
-    '''
+    """ TODO localize
+    """
     ret_val = ''
 
     if feet <= 1.0:
@@ -1001,8 +1001,8 @@ def pretty_distance(feet):
 
 
 def pretty_distance_meters(m):
-    '''
-    '''
+    """
+    """
     ret_val = m
     try:
         d = pretty_distance(float(m) * 3.28)
