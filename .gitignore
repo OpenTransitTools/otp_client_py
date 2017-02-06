@@ -15,6 +15,7 @@ nohup.out
 #*
 .*~
 *~
+*.DS_*
 *.bak
 x
 o
