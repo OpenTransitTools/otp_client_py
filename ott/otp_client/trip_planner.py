@@ -55,11 +55,13 @@ class TripPlanner(object):
 
         # step 3: call the trip planner...
         otp_params = param
+        otp_params.banned_routes = self.cancelled_routes
         if otp_params.is_latest():
             # step 3b: if we have Arr=L (latest trip), we need to increase the date by 1 day, since LATEST
             # trip is essentially an ArriveBy 1:30am trip
             otp_params = param.clone()
             otp_params.date_offset(day_offset=1)
+
         url = "{0}?{1}".format(self.otp_url, otp_params.otp_url_params())
         f = self.call_otp(url)
         j = json.loads(f)
