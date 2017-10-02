@@ -368,21 +368,21 @@ class Alert(object):
             url   = jsn['alertUrl']['someTranslation']
             start_date = jsn['effectiveStartDate']
         except:
-                try:
-                    """ OTP 1.0 format
-                       "alerts":[
-                         {
-                             "alertDescriptionText":"The westbound stop on NE Dekum at M L King is closed for construction.  Use stop at 6th.",
-                             "effectiveStartDate":1473674400000,
-                             "alertUrl":"http://trimet.org/alerts/"
-                         }
-                       ]
-                    """
-                    text = jsn['alertDescriptionText']
-                    url  = jsn['alertUrl']
-                    start_date = jsn['effectiveStartDate']
-                except:
-                    log.warn("couldn't parse alerts")
+            try:
+                """ OTP 1.0 format
+                   "alerts":[
+                     {
+                         "alertDescriptionText":"The westbound stop on NE Dekum at M L King is closed for construction.  Use stop at 6th.",
+                         "effectiveStartDate":1473674400000,
+                         "alertUrl":"http://trimet.org/alerts/"
+                     }
+                   ]
+                """
+                text = jsn['alertDescriptionText']
+                url = jsn['alertUrl']
+                start_date = jsn['effectiveStartDate']
+            except:
+                log.warn("couldn't parse alerts")
 
         self.text = text
         self.url = url
@@ -420,13 +420,13 @@ class Fare(object):
     def __init__(self, jsn, fares):
         self.adult = self.get_fare(jsn, '$2.50')
         if fares:
-            self.adult_day   = fares.query("adult_day",   "$5.00")
-            self.honored     = fares.query("honored",     "$1.25")
+            self.adult_day = fares.query("adult_day", "$5.00")
+            self.honored = fares.query("honored", "$1.25")
             self.honored_day = fares.query("honored_day", "$2.50")
-            self.youth       = fares.query("youth",       "$1.25")
-            self.youth_day   = fares.query("youth_day",   "$2.50")
-            self.tram        = fares.query("tram",        "$4.55")
-            self.notes       = fares.query("notes")
+            self.youth = fares.query("youth", "$1.25")
+            self.youth_day = fares.query("youth_day", "$2.50")
+            self.tram = fares.query("tram", "$4.70")
+            self.notes = fares.query("notes")
 
     def get_fare(self, jsn, def_val):
         """  TODO -- need to figure out exceptions and populate self.note 
@@ -513,13 +513,12 @@ class Stop(object):
 
 class Route(object):
     def __init__(self, jsn):
-        ### TODO IMPORTANT
-        ### TODO We should probably use ott.data's DAO objects here ... very confusing to have multiple routes
-        ### TODO I know I wanted otp_to_ott.py to be standalone, but maybe that's a bad idea in terms of maintenance
-        ### TODO IMPORTANT
+        # TODO IMPORTANT
+        # TODO We should probably use ott.data's DAO objects here ... very confusing to have multiple routes
+        # TODO I know I wanted otp_to_ott.py to be standalone, but maybe that's a bad idea in terms of maintenance
+        # TODO IMPORTANT
 
-
-        ### TODO this code is part of view.AgencyTemplate ... use a version of util.AgencyTemplate in the FUTURE
+        # TODO this code is part of view.AgencyTemplate ... use a version of util.AgencyTemplate in the FUTURE
         self.route_id_cleanup = '\D.*'
 
         self.agency_id = jsn['agencyId']
@@ -546,7 +545,7 @@ class Route(object):
             self.url = "http://c-tran.com/routes/{0}route/index.html".format(self.id)
             self.schedulemap_url = "http://c-tran.com/images/routes/{0}map.png".format(self.id)
 
-    ### TODO this code is part of view.AgencyTemplate ... use a version of util.AgencyTemplate in the FUTURE
+    # TODO this code is part of view.AgencyTemplate ... use a version of util.AgencyTemplate in the FUTURE
     def clean_route_id(self, route_id):
         """ cleans the route_id parameter.  needed because TriMet started using id.future type route ids for route name changes
         """
@@ -554,7 +553,6 @@ class Route(object):
         if self.route_id_cleanup:
             ret_val = re.sub(self.route_id_cleanup, '', route_id)
         return ret_val
-
 
     """ TODO: move to a single class that allows any agency to override & customize """
     def make_route_url(self, template):
@@ -616,9 +614,9 @@ class Step(object):
         ret_val = dir
         try:
             ret_val = {
-                'LEFT' : dir.lower(),
+                'LEFT': dir.lower(),
                 'RIGHT': dir.lower(),
-                'HARD_LEFT' : dir.lower().replace('_', ' '),
+                'HARD_LEFT': dir.lower().replace('_', ' '),
                 'HARD_RIGHT': dir.lower().replace('_', ' '),
                 'CONTINUE': dir.lower(),
 
@@ -975,6 +973,7 @@ def m_to_ft(m):
 
 def distance_dict(distance, measure):
     return {'distance':distance, 'measure':measure}
+
 
 def pretty_distance(feet):
     """ TODO localize
