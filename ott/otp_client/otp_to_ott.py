@@ -35,7 +35,7 @@ class Error(object):
 
 class DateInfo(object):
     def __init__(self, jsn):
-        #import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         self.start_time_ms = jsn['startTime']
         self.end_time_ms = jsn['endTime']
         start = datetime.datetime.fromtimestamp(self.start_time_ms / 1000)
@@ -386,9 +386,16 @@ class Alert(object):
 
         self.text = text
         self.url = url
-        self.start_date = start_date
 
-        dt = datetime.datetime.fromtimestamp(self.start_date / 1000)
+        # make sure we have a valid start date datetime
+        try:
+            dt = datetime.datetime.fromtimestamp(start_date / 1000)
+            self.start_date = start_date
+        except:
+            # import pdb; pdb.set_trace()
+            dt = datetime.datetime.now()
+            self.start_date = (dt - datetime.datetime(1970, 1, 1)).total_seconds()
+
         self.start_date_pretty = dt.strftime("%B %d").replace(' 0',' ')  # "Monday, March 4, 2013"
         self.start_time_pretty = dt.strftime(" %I:%M %p").replace(' 0',' ').lower().strip()  # "1:22 pm"
         self.long_term = True if datetime.datetime.today() - dt > timedelta(days=35) else False
