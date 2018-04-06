@@ -1,7 +1,7 @@
 from ott.utils import json_utils
 from ott.utils import html_utils
-from ott.otp_client  import otp_to_ott
-from ott.utils.parse import TripParamParser
+from ott.otp_client import otp_to_ott
+from ott.utils.parse.url.trip_param_parser import TripParamParser
 from ott.geocoder.geosolr import GeoSolr
 
 import sys
@@ -36,7 +36,7 @@ class TripPlanner(object):
 
             if isinstance(fares, str):
                 self.fares = Fares(fares)
-        except Exception, e:
+        except Exception as e:
             log.warn(e)
 
     def plan_trip(self, request=None, pretty=False):
@@ -81,7 +81,7 @@ class TripPlanner(object):
                 m = plan.dominant_transit_mode()
                 l = html_utils.get_lang(request)
                 ret_val['adverts'] = self.adverts.query(m, l)
-        except Exception, e:
+        except Exception as e:
             try:
                 ret_val['error'] = otp_to_ott.Error(j['error'], param)
             except:
@@ -140,6 +140,7 @@ def main():
 
     plan = tp.plan_trip(argv[1], pretty)
     print plan
+
 
 if __name__ == '__main__':
     main()

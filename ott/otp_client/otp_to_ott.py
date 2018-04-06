@@ -233,7 +233,7 @@ class Elevation(object):
     def find_max_grade(cls, steps):
         """ parse leg for list of elevation points and distances
         """
-        r = {'up':0, 'down':0, 'ue':0, 'ud':0, 'de':0, 'dd':0}
+        r = {'up': 0, 'down': 0, 'ue': 0, 'ud': 0, 'de': 0, 'dd': 0}
         ret_val = r
         try:
             for s in steps:
@@ -260,7 +260,7 @@ class Elevation(object):
                             going_up = True
                         elif elev < r['lue']:
                             last_elev = elev
-        except Exception, e:
+        except Exception as e:
             log.warning(e)
 
         return ret_val
@@ -299,7 +299,7 @@ class Elevation(object):
             # find how much of a rise and fall in feet there are from the avg height
             self.rise_ft = "{0:.1f}".format(rise)
             self.fall_ft = "{0:.1f}".format(fall)
-        except Exception, e:
+        except Exception as e:
             log.warning(e)
 
 
@@ -364,8 +364,8 @@ class Alert(object):
                     "effectiveStartDate":1473674400000
                 }]
             """
-            text  = jsn['alertDescriptionText']['someTranslation']
-            url   = jsn['alertUrl']['someTranslation']
+            text = jsn['alertDescriptionText']['someTranslation']
+            url = jsn['alertUrl']['someTranslation']
             start_date = jsn['effectiveStartDate']
         except:
             try:
@@ -391,7 +391,7 @@ class Alert(object):
         try:
             dt = datetime.datetime.fromtimestamp(start_date / 1000)
             self.start_date = start_date
-        except:
+        except Exception as e:
             # import pdb; pdb.set_trace()
             dt = datetime.datetime.now()
             self.start_date = (dt - datetime.datetime(1970, 1, 1)).total_seconds()
@@ -445,7 +445,7 @@ class Fare(object):
             c = int(jsn['fare']['fare']['regular']['cents']) * 0.01
             s = jsn['fare']['fare']['regular']['currency']['symbol']
             ret_val = "%s%.2f" % (s, c)
-        except Exception, e:
+        except Exception as e:
             pass
         return ret_val
 
@@ -457,7 +457,7 @@ class Fare(object):
             if datetime.now() - self.last_update > timedelta(minutes = self.avert_timeout):
                 log.warning("updating the advert content")
                 self.last_update = datetime.now()
-        except Exception, e:
+        except Exception as e:
             log.warning("ERROR updating the advert content {0}".format(e))
 
         return ret_val
@@ -481,13 +481,13 @@ class Stop(object):
             # *.10.x format -- "stopId":{"agencyId":"TRIMET","id":"10579"}
             self.id = jsn['id']
             self.agency = jsn['agencyId']
-        except:
+        except Exception as e:
             # 1.0.x format -- "stopId":"TriMet:10579",
             try:
                 s = jsn.split(':')
                 self.id = s[1].strip()
                 self.agency = s[0].strip()
-            except:
+            except Exception as e:
                 log.warn("couldn't parse AGENCY nor ID from stop")
 
     def make_info_url(self, url="stop.html?stop_id=%(id)s", **kwargs):
@@ -636,7 +636,7 @@ class Step(object):
                 'SOUTHEAST': dir.lower(),
                 'SOUTHWEST': dir.lower(),
             }[dir]
-        except:
+        except Exception as e:
             pass
 
         return ret_val
@@ -779,7 +779,7 @@ class Itinerary(object):
                 try:
                     for a in leg.alerts:
                         alerts_hash[a.text] = a
-                except:
+                except Exception as e:
                     pass
 
         self.alerts = []
@@ -830,7 +830,7 @@ class Plan(object):
             ret_val = path.format(itin_num)
             if query_string:
                 ret_val = "{0}&{1}".format(ret_val, query_string)
-        except:
+        except Exception as e:
             log.warn("make_itin_url exception")
 
         return ret_val
@@ -913,7 +913,7 @@ def get_element(jsn, name, def_val=None):
             ret_val = int(v)
         else:
             ret_val = v
-    except:
+    except Exception as e:
         log.debug(name + " not an int value in jsn")
     return ret_val
 
@@ -964,9 +964,9 @@ def seconds_to_hours_minutes(secs, def_val=None, min_secs=60):
     """
     min = def_val
     hour = def_val
-    if(secs > min_secs):
+    if secs > min_secs:
         m = math.floor(secs / 60)
-        min  = m % 60
+        min = m % 60
         if m >= 60:
             m = m - min
             hour = int(math.floor(m / 60))
@@ -1013,7 +1013,7 @@ def pretty_distance_meters(m):
     try:
         d = pretty_distance(float(m) * 3.28)
         ret_val = "{distance} {measure}".format(**d)
-    except:
+    except Exception as e:
         log.warn("pretty distance meters")
     return ret_val
 
@@ -1029,19 +1029,19 @@ def main():
         file = 'old/pdx2ohsu.json'
 
     try:
-        f=open(file)
-    except:
-        PATH='ott/otp_client/tests'
-        path="{0}/{1}".format(PATH, file)
-        f=open(path)
+        f = open(file)
+    except Exception as e:
+        path = "{0}/{1}".format('ott/otp_client/tests', file)
+        f = open(path)
 
-    j=json.load(f)
-    p=Plan(j['plan'])
+    j = json.load(f)
+    p = Plan(j['plan'])
     pretty = False
     if argv:
         pretty = 'pretty' in argv or 'p' in argv
     y = json_utils.json_repr(p, pretty)
     print y
+
 
 if __name__ == '__main__':
     main()
