@@ -139,7 +139,7 @@ def main():
         tp = TripPlanner()
 
     plan = tp.plan_trip(argv[1], pretty)
-    print plan
+    print(plan)
 
 
 if __name__ == '__main__':

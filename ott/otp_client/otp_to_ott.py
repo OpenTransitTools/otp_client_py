@@ -1040,7 +1040,7 @@ def main():
     if argv:
         pretty = 'pretty' in argv or 'p' in argv
     y = json_utils.json_repr(p, pretty)
-    print y
+    print(y)
 
 
 if __name__ == '__main__':
