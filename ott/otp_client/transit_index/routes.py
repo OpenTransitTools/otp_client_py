@@ -59,9 +59,11 @@ class Routes(Base):
     mode = "RAIL"
 
     def __init__(self, args={}):
+        #import pdb; pdb.set_trace()
         super(Routes, self).__init__(args)
         self.set('longName', args)
         self.set('mode', args)
+        self.set('color', args, False)
 
     @classmethod
     def factory(cls):

@@ -15,13 +15,18 @@ class Base(object):
         self.agencyName = args.get('agencyName', self.agencyName)
 
     def set(self, name, src={}, always_cpy=True):
-        if always_cpy or src.get(name):
-            self[name] = src.get(name, self[name])
-
+        try:
+            if always_cpy or name in src:
+                def_val = getattr(self, name)
+                val = src.get(name, def_val)
+                setattr(self, name, val)
+        except Exception as e:
+            log.info(e)
 
 def main():
+    #import pdb; pdb.set_trace()
     argv = sys.argv
-    if 'route' in argv:
+    if 'routes' in argv:
         from .routes import Routes
         o = Routes()
     else:
@@ -30,5 +35,4 @@ def main():
 
 
 if __name__ == '__main__':
-    #import pdb; pdb.set_trace()
     main()
