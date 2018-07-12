@@ -1,4 +1,5 @@
 from ott.utils import json_utils
+from ott.utils import object_utils
 
 import sys
 import urllib
@@ -11,17 +12,9 @@ class Base(object):
     agencyName = "AGENCY ID HERE"
 
     def __init__(self, args={}):
-        self.id = args.get('id', self.id)
-        self.agencyName = args.get('agencyName', self.agencyName)
+        object_utils.safe_set_from_dict(self, 'id', args)
+        object_utils.safe_set_from_dict(self, 'agencyName', args)
 
-    def set(self, name, src={}, always_cpy=True):
-        try:
-            if always_cpy or name in src:
-                def_val = getattr(self, name)
-                val = src.get(name, def_val)
-                setattr(self, name, val)
-        except Exception as e:
-            log.info(e)
 
 def main():
     #import pdb; pdb.set_trace()

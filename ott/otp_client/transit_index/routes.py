@@ -1,4 +1,5 @@
 from ott.utils import json_utils
+from ott.utils import object_utils
 
 from .base import Base
 import urllib
@@ -61,9 +62,9 @@ class Routes(Base):
     def __init__(self, args={}):
         #import pdb; pdb.set_trace()
         super(Routes, self).__init__(args)
-        self.set('longName', args)
-        self.set('mode', args)
-        self.set('color', args, False)
+        object_utils.safe_set_from_dict(self, 'longName', args)
+        object_utils.safe_set_from_dict(self, 'mode', args)
+        object_utils.safe_set_from_dict(self, 'color', args, always_cpy=False)
 
     @classmethod
     def factory(cls):
