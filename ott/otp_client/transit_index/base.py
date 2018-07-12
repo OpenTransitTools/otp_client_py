@@ -14,12 +14,16 @@ class Base(object):
         self.id = args.get('id', self.id)
         self.agencyName = args.get('agencyName', self.agencyName)
 
+    def set(self, name, src={}, always_cpy=True):
+        if always_cpy or src.get(name):
+            self[name] = src.get(name, self[name])
+
 
 def main():
     argv = sys.argv
     if 'route' in argv:
-        import routes
-        o = Base()
+        from .routes import Routes
+        o = Routes()
     else:
         o = Base()
     print(o.__dict__)

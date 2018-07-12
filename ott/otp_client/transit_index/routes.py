@@ -55,8 +55,13 @@ class Routes(Base):
         }
     ]
     """
-    def __init__(self):
+    longName = "LONG NAME"
+    mode = "RAIL"
 
+    def __init__(self, args={}):
+        super(Routes, self).__init__(args)
+        self.set('longName', args)
+        self.set('mode', args)
 
     @classmethod
     def factory(cls):
