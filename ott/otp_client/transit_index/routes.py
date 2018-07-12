@@ -1,20 +1,21 @@
 from ott.utils import json_utils
 
+from .base import Base
 import urllib
 import logging
 log = logging.getLogger(__file__)
 
 
-class Routes(object):
+class Routes(Base):
     """
     https://<domain & port>/otp/routers/default/index/routes
     [
         {
             "id": "TriMet:54",
+            "agencyName": "TriMet",
             "shortName": "54",
             "longName": "Beaverton-Hillsdale Hwy",
-            "mode": "BUS",
-            "agencyName": "TriMet"
+            "mode": "BUS"
         },
         {
 
@@ -55,7 +56,7 @@ class Routes(object):
     ]
     """
     def __init__(self):
-        pass
+
 
     @classmethod
     def factory(cls):

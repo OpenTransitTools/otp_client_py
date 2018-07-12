@@ -54,5 +54,6 @@ setup(
         [console_scripts]
         parse_otp_json = ott.otp_client.otp_to_ott:main
         trip_planner = ott.otp_client.trip_planner:main
+        ti = ott.otp_client.transit_index.base:main
     """,
 )
