@@ -22,8 +22,12 @@ def main():
     if 'routes' in argv:
         from .routes import Routes
         o = Routes()
+    elif 'stops' in argv:
+        from .stops import Stops
+        o = Stops()
     else:
         o = Base()
+
     print(o.__dict__)
 
 
