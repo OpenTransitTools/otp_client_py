@@ -9,7 +9,8 @@ log = logging.getLogger(__file__)
 
 class Stops(Base):
     """
-    https://<domain & port>/otp/routers/default/index/routes
+    Scrolling map / BBOX call to stops:
+
     https://<domain & port>/otp/routers/default/index/stops?
       minLat=45.50854243338104&maxLat=45.519789433696744&minLon=-122.6960849761963&maxLon=-122.65591621398927
     [
@@ -22,7 +23,25 @@ class Stops(Base):
             url: http://trimet.org/#tracker/stop/4026
         }
     ]
+
+
+    Nearest stops call:
+
+    https://<domain & port>/otp/routers/default/index/stops?
+    radius=1000&lat=45.4926336&lon=-122.63915519999999
+    [
+      {
+        "id": "TriMet:5516",
+        "code": "5516",
+        "name": "SE Steele & 30th",
+        "lat": 45.484781,
+        "lon": -122.635074,
+        "url": "http://trimet.org/#tracker/stop/5516",
+        "dist": 928
+      }
+    ]
     """
+
     code = "CODE (stop id)"
     name = "STOP NAME"
     lat = "STOP LAT"
@@ -39,6 +58,7 @@ class Stops(Base):
         object_utils.safe_set_from_dict(self, 'lon', args)
         object_utils.safe_set_from_dict(self, 'url', args)
         object_utils.safe_set_from_dict(self, 'mode', args, def_val="BUS")
+        object_utils.safe_set_from_dict(self, 'dist', args, always_cpy=False)
 
     @classmethod
     def factory_via_svc(cls, bbox):
