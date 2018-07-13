@@ -40,5 +40,6 @@ class Stops(Base):
         object_utils.safe_set_from_dict(self, 'mode', args, def_val="BUS")
 
     @classmethod
-    def factory(cls):
+    def factory_via_svc(cls, bbox):
         pass
+
