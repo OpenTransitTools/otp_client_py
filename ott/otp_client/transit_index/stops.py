@@ -1,4 +1,5 @@
 from ott.utils import object_utils
+from ott.utils import geo_utils
 
 from .base import Base
 
@@ -41,5 +42,16 @@ class Stops(Base):
 
     @classmethod
     def factory_via_svc(cls, bbox):
+        # maybe call geoserver ????
         pass
 
+    @classmethod
+    def factory_via_db(cls, bbox):
+        # call postgis within bbox
+        pass
+
+    @classmethod
+    def factory_via_params(cls, min_lat, max_lat, min_lon, max_lon):
+        bbox = geo_utils.bbox(min_lat, max_lat, min_lon, max_lon)
+        stop = cls.factory_via_svc(bbox)
+        return stop
