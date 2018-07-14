@@ -2,14 +2,11 @@ from ott.utils import json_utils
 from ott.utils import object_utils
 
 import sys
-import urllib
 import logging
 log = logging.getLogger(__file__)
 
 
 class Base(object):
-    id = "ID HERE"
-    agencyName = "AGENCY ID HERE"
 
     def __init__(self, args={}):
         object_utils.safe_set_from_dict(self, 'id', args)

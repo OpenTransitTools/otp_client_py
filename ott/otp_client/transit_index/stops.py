@@ -42,14 +42,6 @@ class Stops(Base):
     ]
     """
 
-    code = "CODE (stop id)"
-    name = "STOP NAME"
-    lat = "STOP LAT"
-    lon = "STOP LON"
-    url = "STOP URL"
-
-    mode = "RAIL"
-
     def __init__(self, args={}):
         super(Stops, self).__init__(args)
         object_utils.safe_set_from_dict(self, 'code', args)

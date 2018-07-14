@@ -41,8 +41,6 @@ class Routes(Base):
       }
     ]
     """
-    longName = "LONG NAME"
-    mode = "RAIL"
 
     def __init__(self, args={}):
         super(Routes, self).__init__(args)
