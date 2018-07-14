@@ -8,6 +8,7 @@ log = logging.getLogger(__file__)
 
 class Routes(Base):
     """
+    ROUTE LIST:
     https://<domain & port>/otp/routers/default/index/routes
     [
         {
@@ -27,15 +28,29 @@ class Routes(Base):
 
         }
     ]
+
+    ROUTE STOPS:
+    https://<domain & port>/otp/routers/default/index/stops/TriMet:5516/routes
+    [
+      {
+        "id": "TriMet:10",
+        "shortName": "10",
+        "longName": "Harold St",
+        "mode": "BUS",
+        "agencyName": "TriMet"
+      }
+    ]
     """
     longName = "LONG NAME"
     mode = "RAIL"
 
     def __init__(self, args={}):
         super(Routes, self).__init__(args)
-        object_utils.safe_set_from_dict(self, 'longName', args)
         object_utils.safe_set_from_dict(self, 'mode', args)
+        object_utils.safe_set_from_dict(self, 'longName', args)
+        object_utils.safe_set_from_dict(self, 'shortName', args, always_cpy=False)
         object_utils.safe_set_from_dict(self, 'color', args, always_cpy=False)
+
 
     @classmethod
     def factory(cls):
