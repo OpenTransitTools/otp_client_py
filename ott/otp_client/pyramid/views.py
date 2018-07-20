@@ -5,6 +5,8 @@ import logging
 log = logging.getLogger(__file__)
 
 
+cache_long=5555
+
 def do_view_config(cfg):
     cfg.add_route('routes', '/routes')
 

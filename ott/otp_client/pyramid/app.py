@@ -6,7 +6,7 @@ def main(global_config, **settings):
     """
     this function is the main entry point for Pyramid
     it returns a Pyramid WSGI application
-    see setup.py entry points
+    see setup.py entry points + config/*.ini [app:main] ala pserve (e.g., bin/pserve config/development.ini)
     """
     from pyramid.config import Configurator
 
@@ -18,9 +18,9 @@ def main(global_config, **settings):
         setup_logging(settings['logging_config_file'])
 
     import views
-    views.set_config(settings)
+    #views.set_config(settings)
 
     config.include(views.do_view_config)
-    config.scan('ott.services.pyramid')
+    config.scan('ott.otp_client.pyramid')
 
     return config.make_wsgi_app()

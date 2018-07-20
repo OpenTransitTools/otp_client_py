@@ -11,6 +11,11 @@ requires = [
     'ott.geocoder',
     'simplejson',
     'python-dateutil',
+
+    'pyramid < 1.8',
+    'pyramid_tm',
+    'pyramid_exclog',
+    'waitress',
 ]
 
 extras_require = dict(
@@ -52,7 +57,7 @@ setup(
     test_suite="ott.otp_client.tests",
     entry_points="""\
         [paste.app_factory]
-        main = ott.services.pyramid.app:main
+        main = ott.otp_client.pyramid.app:main
 
         [console_scripts]
         parse_otp_json = ott.otp_client.otp_to_ott:main
