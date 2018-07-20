@@ -29,7 +29,7 @@ class Routes(Base):
         }
     ]
 
-    ROUTE STOPS:
+    STOP's ROUTES:
     https://<domain & port>/otp/routers/default/index/stops/TriMet:5516/routes
     [
       {
@@ -51,5 +51,15 @@ class Routes(Base):
 
 
     @classmethod
-    def factory(cls):
-        pass
+    def stop_routes(cls, agency_id, stop_id):
+        ret_val = []
+
+        for i in range(5):
+            agency_name = agency_id
+            route_id = i
+            color = stop_id
+            otp_route_id = "{}:{}".format(agency_id, route_id)
+            r = Routes({'agencyName': agency_name, 'id': otp_route_id, 'shortName': route_id, 'color': color})
+            ret_val.append(r.__dict__)
+
+        return ret_val

@@ -32,13 +32,11 @@ def stops(request):
 
 @view_config(route_name='stop_routes', renderer='json', http_cache=cache_long)
 def stop_routes(request):
-    ret_val = None
+    ret_val = []
     try:
-        agency_stop = request.matchdict['stop'].split(':')
-        # TODO call nearest stops...
-        route_id = agency_stop
-        r = Routes({'agencyName': agency_name, 'id': route_id})
-        ret_val = r.__dict__
+        stop = request.matchdict['stop']
+        agency_id, stop_id = stop.split(':')
+        ret_val = Routes.stop_routes(agency_id, stop_id)
     except Exception as e:
         log.warn(e)
     return ret_val
