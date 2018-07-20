@@ -18,8 +18,7 @@ def do_view_config(cfg):
 
 @view_config(route_name='stops', renderer='json', http_cache=cache_long)
 def stops(request):
-    s = Stops()
-    ret_val = s.__dict__
+    ret_val = Stops.nearest_stops(2, 3, 5.5)
     return ret_val
 
 

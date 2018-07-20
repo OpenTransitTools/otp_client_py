@@ -53,17 +53,36 @@ class Stops(Base):
         object_utils.safe_set_from_dict(self, 'dist', args, always_cpy=False)
 
     @classmethod
-    def factory_via_svc(cls, bbox):
+    def via_svc(cls, bbox):
         # maybe call geoserver ????
         pass
 
     @classmethod
-    def factory_via_db(cls, bbox):
+    def via_db(cls, bbox):
         # call postgis within bbox
         pass
 
     @classmethod
-    def factory_via_params(cls, min_lat, max_lat, min_lon, max_lon):
-        bbox = geo_utils.bbox(min_lat, max_lat, min_lon, max_lon)
-        stop = cls.factory_via_svc(bbox)
-        return stop
+    def bbox_stops(cls, min_lat, max_lat, min_lon, max_lon):
+        #bbox = geo_utils.bbox(min_lat, max_lat, min_lon, max_lon)
+        #stop = cls.factory_via_svc(bbox)
+
+        ret_val = []
+        for i in range(5):
+            stop_id = i+1
+            cfg = {'id': stop_id}
+            s = Stops(cfg)
+            ret_val.append(s.__dict__)
+        return ret_val
+
+    @classmethod
+    def nearest_stops(cls, lat, lon, radius=0.0):
+        ret_val = []
+        for i in range(5):
+            stop_id = i+1
+            distance = radius + 2.2 + float(i)
+            cfg = {'id': stop_id, 'dist': distance}
+            s = Stops(cfg)
+            ret_val.append(s.__dict__)
+        return ret_val
+
