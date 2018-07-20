@@ -51,6 +51,9 @@ setup(
     tests_require=requires,
     test_suite="ott.otp_client.tests",
     entry_points="""\
+        [paste.app_factory]
+        main = ott.services.pyramid.app:main
+
         [console_scripts]
         parse_otp_json = ott.otp_client.otp_to_ott:main
         trip_planner = ott.otp_client.trip_planner:main
