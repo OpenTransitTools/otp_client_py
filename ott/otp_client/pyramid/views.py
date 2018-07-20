@@ -4,6 +4,8 @@ from pyramid.view import view_config
 from ott.otp_client.transit_index.routes import Routes
 from ott.otp_client.transit_index.stops import Stops
 
+from ott.utils.parse.url.geo_param_parser import GeoParamParser
+
 import logging
 log = logging.getLogger(__file__)
 
@@ -18,6 +20,12 @@ def do_view_config(cfg):
 
 @view_config(route_name='stops', renderer='json', http_cache=cache_long)
 def stops(request):
+    """
+    Nearest Stops: stops?radius=1000&lat=45.4926336&lon=-122.63915519999999
+    BBox Stops: stops?minLat=45.508542&maxLat=45.5197894&minLon=-122.696084&maxLon=-122.65594
+    """
+    # import pdb; pdb.set_trace()
+    params = GeoParamParser(request)
     # if request contains 'radius' and lat and lon:
     ret_val = Stops.nearest_stops(2, 3, 5)
     # elif request contains ....
