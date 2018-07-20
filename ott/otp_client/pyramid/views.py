@@ -18,7 +18,10 @@ def do_view_config(cfg):
 
 @view_config(route_name='stops', renderer='json', http_cache=cache_long)
 def stops(request):
-    ret_val = Stops.nearest_stops(2, 3, 5.5)
+    # if request contains 'radius' and lat and lon:
+    ret_val = Stops.nearest_stops(2, 3, 5)
+    # elif request contains ....
+    ret_val = Stops.bbox_stops(1, 3, 5, 4)
     return ret_val
 
 
