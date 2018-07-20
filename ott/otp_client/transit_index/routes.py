@@ -51,15 +51,50 @@ class Routes(Base):
 
 
     @classmethod
-    def stop_routes(cls, agency_id, stop_id):
+    def stop_routes_factory(cls, agency_id, stop_id):
+        """
+        :return a list of all route(s) serving a given stop
+        """
         ret_val = []
 
         for i in range(5):
             agency_name = agency_id
             route_id = i
+            short_name = i if i > 2 else None
+            long_name = agency_id + str(i)
             color = stop_id
+            mode = "TRAM"
+
             otp_route_id = "{}:{}".format(agency_id, route_id)
-            r = Routes({'agencyName': agency_name, 'id': otp_route_id, 'shortName': route_id, 'color': color})
+            cfg = {'agencyName': agency_name, 'id': otp_route_id,
+                   'shortName': short_name, 'longName': long_name,
+                   'mode': mode, 'color': color}
+            r = Routes(cfg)
+            ret_val.append(r.__dict__)
+
+        return ret_val
+
+
+    @classmethod
+    def routes_factory(cls, agency_id=None):
+        """
+        :return a list of all route(s) for a given agency
+        """
+        ret_val = []
+
+        for i in range(50):
+            agency_name = agency_id
+            route_id = i
+            short_name = i if i > 2 else None
+            long_name = i
+            color = i
+            mode = "TRAM"
+
+            otp_route_id = "{}:{}".format(agency_id, route_id)
+            cfg = {'agencyName': agency_name, 'id': otp_route_id,
+                   'shortName': short_name, 'longName': long_name,
+                   'mode': mode, 'color': color}
+            r = Routes(cfg)
             ret_val.append(r.__dict__)
 
         return ret_val

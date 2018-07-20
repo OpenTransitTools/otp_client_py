@@ -11,16 +11,9 @@ cache_long=5555
 
 
 def do_view_config(cfg):
-    cfg.add_route('routes', '/routes')
     cfg.add_route('stops', '/stops')
+    cfg.add_route('routes', '/routes')
     cfg.add_route('stop_routes', '/stops/{stop}/routes')
-
-
-@view_config(route_name='routes', renderer='json', http_cache=cache_long)
-def routes(request):
-    r = Routes()
-    ret_val = r.__dict__
-    return ret_val
 
 
 @view_config(route_name='stops', renderer='json', http_cache=cache_long)
@@ -30,13 +23,19 @@ def stops(request):
     return ret_val
 
 
+@view_config(route_name='routes', renderer='json', http_cache=cache_long)
+def routes(request):
+    ret_val = Routes.routes_factory()
+    return ret_val
+
+
 @view_config(route_name='stop_routes', renderer='json', http_cache=cache_long)
 def stop_routes(request):
     ret_val = []
     try:
         stop = request.matchdict['stop']
         agency_id, stop_id = stop.split(':')
-        ret_val = Routes.stop_routes(agency_id, stop_id)
+        ret_val = Routes.stop_routes_factory(agency_id, stop_id)
     except Exception as e:
         log.warn(e)
     return ret_val
