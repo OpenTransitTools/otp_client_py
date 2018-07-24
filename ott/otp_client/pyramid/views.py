@@ -13,12 +13,12 @@ cache_long=5555
 
 
 def do_view_config(cfg):
-    cfg.add_route('stops', '/stops')
-    cfg.add_route('routes', '/routes')
-    cfg.add_route('stop_routes', '/stops/{stop}/routes')
+    cfg.add_route('ti_stops', '/ti/stops')
+    cfg.add_route('ti_stop_routes', '/ti/stops/{stop}/routes')
+    cfg.add_route('ti_routes', '/ti/routes')
 
 
-@view_config(route_name='stops', renderer='json', http_cache=cache_long)
+@view_config(route_name='ti_stops', renderer='json', http_cache=cache_long)
 def stops(request):
     """
     Nearest Stops: stops?radius=1000&lat=45.4926336&lon=-122.63915519999999
@@ -33,13 +33,13 @@ def stops(request):
     return ret_val
 
 
-@view_config(route_name='routes', renderer='json', http_cache=cache_long)
+@view_config(route_name='ti_routes', renderer='json', http_cache=cache_long)
 def routes(request):
     ret_val = Routes.routes_factory()
     return ret_val
 
 
-@view_config(route_name='stop_routes', renderer='json', http_cache=cache_long)
+@view_config(route_name='ti_stop_routes', renderer='json', http_cache=cache_long)
 def stop_routes(request):
     ret_val = []
     try:
