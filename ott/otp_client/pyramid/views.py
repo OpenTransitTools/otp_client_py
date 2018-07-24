@@ -5,10 +5,9 @@ from ott.otp_client.transit_index.routes import Routes
 from ott.otp_client.transit_index.stops import Stops
 from ott.otp_client.trip_planner import TripPlanner
 
-from ott.utils.svr.pyramid import response_utils
-
+from ott.geocoder.geosolr import GeoSolr
 from ott.utils.parse.url.geo_param_parser import GeoParamParser
-
+from ott.utils.svr.pyramid import response_utils
 from ott.utils import json_utils
 from ott.utils import object_utils
 
@@ -75,6 +74,7 @@ def plan_trip(request):
 
 TRIP_PLANNER = None
 def get_planner():
+    #import pdb; pdb.set_trace()
     global TRIP_PLANNER
     if TRIP_PLANNER is None:
         otp_url = CONFIG.get('otp_url')
@@ -82,6 +82,6 @@ def get_planner():
         advert_url = CONFIG.get('advert_url')
         fare_url = CONFIG.get('fare_url')
         cancelled_url = CONFIG.get('cancelled_routes_url')
-
-        TRIP_PLANNER = TripPlanner(otp_url=otp_url, solr=get_solr(), adverts=advert_url, fares=fare_url, cancelled_routes=cancelled_url)
+        solr = GeoSolr(CONFIG.get('solr_url'))
+        TRIP_PLANNER = TripPlanner(otp_url=otp_url, solr=solr, adverts=advert_url, fares=fare_url, cancelled_routes=cancelled_url)
     return TRIP_PLANNER

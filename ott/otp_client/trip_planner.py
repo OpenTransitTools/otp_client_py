@@ -20,6 +20,7 @@ class TripPlanner(object):
         if isinstance(solr, str):
             self.geo = GeoSolr(solr)
 
+        #import pdb; pdb.set_trace()
         self.adverts = adverts
         self.fares = fares
         self.cancelled_routes = cancelled_routes
@@ -35,9 +36,9 @@ class TripPlanner(object):
                 from ott.data.content import Fares
                 self.fares = Fares(fares)
 
-            if isinstance(cancelled_routes, str):
+            if isinstance(cancelled_routes, str) and 'http' in cancelled_routes:
                 from ott.data.content import CancelledRoutes
-                self.fares = CancelledRoutes(cancelled_routes)
+                self.cancelled_routes = CancelledRoutes(cancelled_routes)
 
         except Exception as e:
             log.warn(e)
@@ -45,7 +46,6 @@ class TripPlanner(object):
     def plan_trip(self, request=None, pretty=False):
         """ "powell%20blvd::45.49063653,-122.4822897"  "45.433507,-122.559709"
         """
-        #import pdb; pdb.set_trace()
 
         # step 1: parse params
         param = TripParamParser(request)
