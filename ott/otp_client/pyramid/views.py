@@ -18,8 +18,9 @@ cache_long=5555
 cache_short=5555
 CONFIG=None
 
+
 def do_view_config(cfg):
-    cfg.add_route('plan_trip',     '/plan_trip')
+    cfg.add_route('plan_trip', '/plan_trip')
     cfg.add_route('ti_routes', '/ti/routes')
     cfg.add_route('ti_stops', '/ti/stops')
     cfg.add_route('ti_stop_routes', '/ti/stops/{stop}/routes')
@@ -31,12 +32,14 @@ def stops(request):
     Nearest Stops: stops?radius=1000&lat=45.4926336&lon=-122.63915519999999
     BBox Stops: stops?minLat=45.508542&maxLat=45.5197894&minLon=-122.696084&maxLon=-122.65594
     """
-    # import pdb; pdb.set_trace()
+    #import pdb; pdb.set_trace()
     params = GeoParamParser(request)
-    # if request contains 'radius' and lat and lon:
-    ret_val = Stops.nearest_stops(2, 3, 5)
-    # elif request contains ....
-    ret_val = Stops.bbox_stops(1, 3, 5, 4)
+    if params.has_radius():
+        ret_val = Stops.nearest_stops(2, 3, 5)
+    elif params.has_bbox():
+        ret_val = Stops.bbox_stops(1, 3, 5, 4)
+    else:
+        ret_val = []
     return ret_val
 
 
