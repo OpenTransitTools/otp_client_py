@@ -27,15 +27,18 @@ class TripPlanner(object):
         # optionally create Adverts and Fares objects
         # note: requires change to this buildout to include the ott.data project
         try:
-            from ott.data.content import Adverts
-            from ott.data.content import Fares
-            from ott.data.content import CancelledRoutes
-
             if isinstance(adverts, str):
+                from ott.data.content import Adverts
                 self.adverts = Adverts(adverts)
 
             if isinstance(fares, str):
+                from ott.data.content import Fares
                 self.fares = Fares(fares)
+
+            if isinstance(cancelled_routes, str):
+                from ott.data.content import CancelledRoutes
+                self.fares = CancelledRoutes(cancelled_routes)
+
         except Exception as e:
             log.warn(e)
 

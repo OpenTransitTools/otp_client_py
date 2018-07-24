@@ -3,19 +3,27 @@ from pyramid.view import view_config
 
 from ott.otp_client.transit_index.routes import Routes
 from ott.otp_client.transit_index.stops import Stops
+from ott.otp_client.trip_planner import TripPlanner
+
+from ott.utils.svr.pyramid import response_utils
 
 from ott.utils.parse.url.geo_param_parser import GeoParamParser
+
+from ott.utils import json_utils
+from ott.utils import object_utils
 
 import logging
 log = logging.getLogger(__file__)
 
 cache_long=5555
-
+cache_short=5555
+CONFIG=None
 
 def do_view_config(cfg):
+    cfg.add_route('plan_trip',     '/plan_trip')
+    cfg.add_route('ti_routes', '/ti/routes')
     cfg.add_route('ti_stops', '/ti/stops')
     cfg.add_route('ti_stop_routes', '/ti/stops/{stop}/routes')
-    cfg.add_route('ti_routes', '/ti/routes')
 
 
 @view_config(route_name='ti_stops', renderer='json', http_cache=cache_long)
@@ -49,3 +57,31 @@ def stop_routes(request):
     except Exception as e:
         log.warn(e)
     return ret_val
+
+
+@view_config(route_name='plan_trip', renderer='json', http_cache=cache_short)
+def plan_trip(request):
+    ret_val = None
+    try:
+        trip = get_planner().plan_trip(request)
+        ret_val = response_utils.json_response(trip)
+    except Exception as e:
+        log.warn(e)
+        ret_val = response_utils.sys_error_response()
+    finally:
+        pass
+    return ret_val
+
+
+TRIP_PLANNER = None
+def get_planner():
+    global TRIP_PLANNER
+    if TRIP_PLANNER is None:
+        otp_url = CONFIG.get('otp_url')
+
+        advert_url = CONFIG.get('advert_url')
+        fare_url = CONFIG.get('fare_url')
+        cancelled_url = CONFIG.get('cancelled_routes_url')
+
+        TRIP_PLANNER = TripPlanner(otp_url=otp_url, solr=get_solr(), adverts=advert_url, fares=fare_url, cancelled_routes=cancelled_url)
+    return TRIP_PLANNER
