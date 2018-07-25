@@ -3,6 +3,7 @@ from ott.utils.svr.pyramid.app_config import AppConfig
 import logging
 log = logging.getLogger(__file__)
 
+
 def main(global_config, **config):
     """
     this function is the main entry point for pserve / Pyramid
