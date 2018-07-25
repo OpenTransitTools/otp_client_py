@@ -7,11 +7,12 @@ from ott.otp_client.trip_planner import TripPlanner
 
 from ott.geocoder.geosolr import GeoSolr
 from ott.utils.parse.url.geo_param_parser import GeoParamParser
-from ott.utils.svr.pyramid import response_utils
-from ott.utils.svr.pyramid.globals import *
 
 from ott.utils import json_utils
 from ott.utils import object_utils
+
+from ott.utils.svr.pyramid import response_utils
+from ott.utils.svr.pyramid.globals import *
 
 import logging
 log = logging.getLogger(__file__)
