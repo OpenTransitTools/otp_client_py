@@ -31,15 +31,21 @@ class TripPlanner(object):
             if isinstance(adverts, str):
                 from ott.data.content import Adverts
                 self.adverts = Adverts(adverts)
+        except Exception as e:
+            log.warn(e)
 
+        try:
             if isinstance(fares, str):
                 from ott.data.content import Fares
                 self.fares = Fares(fares)
+        except Exception as e:
+            log.warn(e)
 
+        try:
             if isinstance(cancelled_routes, str) and 'http' in cancelled_routes:
+                self.cancelled_routes = ""
                 from ott.data.content import CancelledRoutes
                 self.cancelled_routes = CancelledRoutes(cancelled_routes)
-
         except Exception as e:
             log.warn(e)
 

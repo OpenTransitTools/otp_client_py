@@ -8,15 +8,23 @@ from ott.otp_client.trip_planner import TripPlanner
 from ott.geocoder.geosolr import GeoSolr
 from ott.utils.parse.url.geo_param_parser import GeoParamParser
 from ott.utils.svr.pyramid import response_utils
+from ott.utils.svr.pyramid.globals import *
+
 from ott.utils import json_utils
 from ott.utils import object_utils
 
 import logging
 log = logging.getLogger(__file__)
 
-cache_long=5555
-cache_short=5555
-CONFIG=None
+
+APP_CONFIG=None
+def set_app_config(app_cfg):
+    """
+    called set the singleton AppConfig object
+    :see ott.utils.svr.pyramid.app_config.AppConfig :
+    """
+    global APP_CONFIG
+    APP_CONFIG = app_cfg
 
 
 def do_view_config(cfg):
@@ -26,7 +34,7 @@ def do_view_config(cfg):
     cfg.add_route('ti_stop_routes', '/ti/stops/{stop}/routes')
 
 
-@view_config(route_name='ti_stops', renderer='json', http_cache=cache_long)
+@view_config(route_name='ti_stops', renderer='json', http_cache=CACHE_LONG)
 def stops(request):
     """
     Nearest Stops: stops?radius=1000&lat=45.4926336&lon=-122.63915519999999
@@ -43,13 +51,13 @@ def stops(request):
     return ret_val
 
 
-@view_config(route_name='ti_routes', renderer='json', http_cache=cache_long)
+@view_config(route_name='ti_routes', renderer='json', http_cache=CACHE_LONG)
 def routes(request):
     ret_val = Routes.routes_factory()
     return ret_val
 
 
-@view_config(route_name='ti_stop_routes', renderer='json', http_cache=cache_long)
+@view_config(route_name='ti_stop_routes', renderer='json', http_cache=CACHE_LONG)
 def stop_routes(request):
     ret_val = []
     try:
@@ -61,7 +69,7 @@ def stop_routes(request):
     return ret_val
 
 
-@view_config(route_name='plan_trip', renderer='json', http_cache=cache_short)
+@view_config(route_name='plan_trip', renderer='json', http_cache=CACHE_SHORT)
 def plan_trip(request):
     ret_val = None
     try:
@@ -75,16 +83,13 @@ def plan_trip(request):
     return ret_val
 
 
-TRIP_PLANNER = None
 def get_planner():
     #import pdb; pdb.set_trace()
-    global TRIP_PLANNER
-    if TRIP_PLANNER is None:
-        otp_url = CONFIG.get('otp_url')
-
-        advert_url = CONFIG.get('advert_url')
-        fare_url = CONFIG.get('fare_url')
-        cancelled_url = CONFIG.get('cancelled_routes_url')
-        solr = GeoSolr(CONFIG.get('solr_url'))
-        TRIP_PLANNER = TripPlanner(otp_url=otp_url, solr=solr, adverts=advert_url, fares=fare_url, cancelled_routes=cancelled_url)
-    return TRIP_PLANNER
+    if getattr(APP_CONFIG, 'trip_planner', None) is None:
+        otp_url = APP_CONFIG.config.get('otp_url')
+        advert_url = APP_CONFIG.config.get('advert_url')
+        fare_url = APP_CONFIG.config.get('fare_url')
+        cancelled_url = APP_CONFIG.config.get('cancelled_routes_url')
+        solr = GeoSolr(APP_CONFIG.config.get('solr_url'))
+        APP_CONFIG.trip_planner = TripPlanner(otp_url=otp_url, solr=solr, adverts=advert_url, fares=fare_url, cancelled_routes=cancelled_url)
+    return APP_CONFIG.trip_planner
