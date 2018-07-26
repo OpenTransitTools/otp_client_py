@@ -87,10 +87,10 @@ def plan_trip(request):
 def get_planner():
     #import pdb; pdb.set_trace()
     if getattr(APP_CONFIG, 'trip_planner', None) is None:
-        otp_url = APP_CONFIG.config.get('otp_url')
-        advert_url = APP_CONFIG.config.get('advert_url')
-        fare_url = APP_CONFIG.config.get('fare_url')
-        cancelled_url = APP_CONFIG.config.get('cancelled_routes_url')
-        solr = GeoSolr(APP_CONFIG.config.get('solr_url'))
+        otp_url = APP_CONFIG.ini_settings.get('otp_url')
+        advert_url = APP_CONFIG.ini_settings.get('advert_url')
+        fare_url = APP_CONFIG.ini_settings.get('fare_url')
+        cancelled_url = APP_CONFIG.ini_settings.get('cancelled_routes_url')
+        solr = GeoSolr(APP_CONFIG.ini_settings.get('solr_url'))
         APP_CONFIG.trip_planner = TripPlanner(otp_url=otp_url, solr=solr, adverts=advert_url, fares=fare_url, cancelled_routes=cancelled_url)
     return APP_CONFIG.trip_planner
