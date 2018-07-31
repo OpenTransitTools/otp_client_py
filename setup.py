@@ -11,6 +11,7 @@ requires = [
     'ott.geocoder',
     'simplejson',
     'python-dateutil',
+    'gtfsdb',
 
     'pyramid < 1.8',
     'pyramid_tm',
