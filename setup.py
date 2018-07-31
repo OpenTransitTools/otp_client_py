@@ -9,9 +9,11 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 requires = [
     'ott.utils',
     'ott.geocoder',
+    'ott.data[postgresql]',
+
+    'gtfsdb',
     'simplejson',
     'python-dateutil',
-    'gtfsdb',
 
     'pyramid < 1.8',
     'pyramid_tm',
@@ -44,6 +46,7 @@ setup(
     author_email="info@opentransittools.org",
     dependency_links=[
         'git+https://github.com/OpenTransitTools/utils.git#egg=ott.utils-0.1.0',
+        'git+https://github.com/OpenTransitTools/data.git#egg=ott.data-0.1.0',
         'git+https://github.com/OpenTransitTools/geocoder.git#egg=ott.geocoder-0.1.0'
     ],
     license="Mozilla-derived (http://opentransittools.com)",
