@@ -41,12 +41,12 @@ def stops(request):
     Nearest Stops: stops?radius=1000&lat=45.4926336&lon=-122.63915519999999
     BBox Stops: stops?minLat=45.508542&maxLat=45.5197894&minLon=-122.696084&maxLon=-122.65594
     """
-    #import pdb; pdb.set_trace()
+    import pdb; pdb.set_trace()
     params = GeoParamParser(request)
     if params.has_radius():
-        ret_val = Stops.nearest_stops(2, 3, 5)
+        ret_val = Stops.nearest_stops(APP_CONFIG.db.session, 2, 3, 5)
     elif params.has_bbox():
-        ret_val = Stops.bbox_stops(1, 3, 5, 4)
+        ret_val = Stops.bbox_stops(APP_CONFIG.db.session, 1, 3, 5, 4)
     else:
         ret_val = []
     return ret_val
@@ -54,7 +54,7 @@ def stops(request):
 
 @view_config(route_name='ti_routes', renderer='json', http_cache=CACHE_LONG)
 def routes(request):
-    ret_val = Routes.routes_factory()
+    ret_val = Routes.routes_factory(APP_CONFIG.db.session)
     return ret_val
 
 
@@ -64,7 +64,7 @@ def stop_routes(request):
     try:
         stop = request.matchdict['stop']
         agency_id, stop_id = stop.split(':')
-        ret_val = Routes.stop_routes_factory(agency_id, stop_id)
+        ret_val = Routes.stop_routes_factory(APP_CONFIG.db.session, agency_id, stop_id)
     except Exception as e:
         log.warn(e)
     return ret_val
@@ -85,7 +85,7 @@ def plan_trip(request):
 
 
 def get_planner():
-    #import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     if getattr(APP_CONFIG, 'trip_planner', None) is None:
         otp_url = APP_CONFIG.ini_settings.get('otp_url')
         advert_url = APP_CONFIG.ini_settings.get('advert_url')
