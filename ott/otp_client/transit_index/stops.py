@@ -24,7 +24,6 @@ class Stops(Base):
         }
     ]
 
-
     Nearest stops call:
 
     https://<domain & port>/otp/routers/default/index/stops?
@@ -58,12 +57,24 @@ class Stops(Base):
         return ret_val
 
     @classmethod
-    def nearest_stops(cls, session, point):
+    def nearest_stops(cls, session, point, limit=10, agency_id=None):
         """
-        :return a list of all route(s) serving a given stop
+        :return a list of nearest stops
         """
-        from ott.data.dao.stop_dao import StopDao
-        stops = StopDao.query_orm_for_stop(session, stop_id, detailed=False)
+        # todo: use OTP nearest stops in the future
+        ret_val = cls._gtfsdb_nearest_stops(session, point.to_geojson(), point.radius, limit, agency_id)
+        return ret_val
+
+    @classmethod
+    def _gtfsdb_nearest_stops(cls, session, geojson_point, radius=None, limit=10, is_active=True, agency_id=None):
+        """
+        query nearest stops based on walk graph
+        :params db session, POINT(x,y), limit=10:
+        TODO: otp nearest is TDB functionality ... so just call gtfsdb for now
+        """
+        from ott.data.dao.stop_dao import StopListDao
+        stops = StopListDao.query_nearest_stops(session, geojson_point, radius, limit, is_active)
+        import pdb; pdb.set_trace()
         ret_val = cls._stop_list_from_gtfsdb_list(stops, agency_id)
         return ret_val
 
@@ -81,7 +92,6 @@ class Stops(Base):
         """ factory to genereate a Stop obj from a queried gtfsdb stop """
         agency = agency_id if agency_id else s.agency_id
         #otp_route_id = otp_utils.make_otp_route_id(r.route_id, agency)
-
         return ret_val
 
     @classmethod
