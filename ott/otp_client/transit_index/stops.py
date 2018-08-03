@@ -53,7 +53,7 @@ class Stops(Base):
         object_utils.safe_set_from_dict(self, 'dist', args, always_cpy=False)
 
     @classmethod
-    def mock(cls, geom, num_recs=5):
+    def mock(cls, num_recs=5):
         """ mock a response """
         ret_val = []
         for i in range(num_recs):

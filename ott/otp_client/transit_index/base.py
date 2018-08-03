@@ -13,19 +13,24 @@ class Base(object):
         object_utils.safe_set_from_dict(self, 'agencyName', args)
 
 
+    @classmethod
+    def mock(cls):
+        return []
+
 def main():
     # import pdb; pdb.set_trace()
     argv = sys.argv
     if 'routes' in argv:
         from .routes import Routes
-        o = Routes()
+        list = Routes.mock()
     elif 'stops' in argv:
         from .stops import Stops
-        o = Stops()
+        list = Stops.mock()
     else:
-        o = Base()
+        list = Base.mock()
 
-    print(o.__dict__)
+    for o in list:
+        print(o)
 
 
 if __name__ == '__main__':

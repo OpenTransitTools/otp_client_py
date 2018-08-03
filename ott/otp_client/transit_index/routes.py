@@ -98,23 +98,23 @@ class Routes(Base):
         return ret_val
 
     @classmethod
-    def mock(cls):
+    def mock(cls, agency_id="MOCK"):
         """
         """
         ret_val = []
 
         for i in range(50):
             agency_name = agency_id
-            route_id = i
-            short_name = i if i > 2 else None
-            long_name = i
-            color = i
-            mode = "TRAM"
+            route_id = str(i+1)
+            short_name = str(route_id) if i % 2 else None
+            long_name = "{}-{}".format(i+1, agency_id)
+            color = "Ox{:02}{:02}{:02}".format(i+3, i*2, i+17)
+            mode = "TRAM" if i % 3 else "BUS"
 
-            otp_route_id = cls.otp_route_id(route_id, agency_id)
+            otp_route_id = otp_utils.make_otp_route_id(route_id, agency_id)
             cfg = {'agencyName': agency_name, 'id': otp_route_id,
                    'shortName': short_name, 'longName': long_name,
-                   'mode': mode, 'color': color}
+                   'mode': mode, 'color': color, 'sortOrder': i+1}
             r = Routes(cfg)
             ret_val.append(r.__dict__)
 
