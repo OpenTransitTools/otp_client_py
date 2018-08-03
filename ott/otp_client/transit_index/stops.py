@@ -53,6 +53,38 @@ class Stops(Base):
         object_utils.safe_set_from_dict(self, 'dist', args, always_cpy=False)
 
     @classmethod
+    def bbox_stops(cls, session, bbox):
+        ret_val = []
+        return ret_val
+
+    @classmethod
+    def nearest_stops(cls, session, point):
+        """
+        :return a list of all route(s) serving a given stop
+        """
+        from ott.data.dao.stop_dao import StopDao
+        stops = StopDao.query_orm_for_stop(session, stop_id, detailed=False)
+        ret_val = cls._stop_list_from_gtfsdb_list(stops, agency_id)
+        return ret_val
+
+    @classmethod
+    def _stop_list_from_gtfsdb_list(cls, gtfsdb_stop_list, agency_id=None):
+        """ input gtfsdb list, output Route obj list """
+        ret_val = []
+        for s in gtfsdb_stop_list:
+            stop = cls._stop_from_gtfsdb(s, agency_id)
+            ret_val.append(stop.__dict__)
+        return ret_val
+
+    @classmethod
+    def _stop_from_gtfsdb(cls, s, agency_id=None):
+        """ factory to genereate a Stop obj from a queried gtfsdb stop """
+        agency = agency_id if agency_id else s.agency_id
+        #otp_route_id = otp_utils.make_otp_route_id(r.route_id, agency)
+
+        return ret_val
+
+    @classmethod
     def mock(cls, num_recs=5):
         """ mock a response """
         ret_val = []
@@ -65,14 +97,3 @@ class Stops(Base):
             s = Stops(cfg)
             ret_val.append(s.__dict__)
         return ret_val
-
-    @classmethod
-    def bbox_stops(cls, session, bbox):
-        ret_val = []
-        return ret_val
-
-    @classmethod
-    def nearest_stops(cls, session, point):
-        ret_val = []
-        return ret_val
-

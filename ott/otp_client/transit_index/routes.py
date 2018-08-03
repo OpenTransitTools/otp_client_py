@@ -75,10 +75,10 @@ class Routes(Base):
         return ret_val
 
     @classmethod
-    def _route_list_from_gtfsdb_list(cls, route_list, agency_id=None):
+    def _route_list_from_gtfsdb_list(cls, gtfsdb_route_list, agency_id=None):
         """ input gtfsdb list, output Route obj list """
         ret_val = []
-        for r in route_list:
+        for r in gtfsdb_route_list:
             route = cls._route_from_gtfsdb(r, agency_id)
             ret_val.append(route.__dict__)
         return ret_val
