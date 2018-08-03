@@ -59,7 +59,7 @@ class Stops(Base):
         for i in range(num_recs):
             stop_id = i+1
             cfg = {'id': stop_id}
-            if is_instance(geom, ott.utils.geo.coord.Coord):
+            if isinstance(geom, ott.utils.geo.point.Point):
                 distance = radius + 2.2 + float(i)
                 cfg['dist'] = distance
             s = Stops(cfg)

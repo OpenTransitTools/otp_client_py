@@ -107,13 +107,13 @@ class Routes(Base):
         return ret_val
 
     @classmethod
-    def routes_factory(cls, session, agency_id=None):
+    def routes_factory(cls, session, date=None, agency_id=None):
         """
         :return a list of all route(s) for a given agency
         """
         ret_val = []
         from ott.data.dao.route_dao import RouteListDao
-        routes = RouteListDao.active_routes(session)
+        routes = RouteListDao.active_routes(session, date=date)
         for r in routes:
             #import pdb; pdb.set_trace()
             agency = agency_id if agency_id else r.agency_id

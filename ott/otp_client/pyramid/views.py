@@ -6,6 +6,7 @@ from ott.otp_client.transit_index.stops import Stops
 from ott.otp_client.trip_planner import TripPlanner
 
 from ott.geocoder.geosolr import GeoSolr
+from ott.utils.parse.url.param_parser import ParamParser
 from ott.utils.parse.url.geo_param_parser import GeoParamParser
 
 from ott.utils import json_utils
@@ -54,7 +55,8 @@ def stops(request):
 
 @view_config(route_name='ti_routes', renderer='json', http_cache=CACHE_LONG)
 def routes(request):
-    ret_val = Routes.routes_factory(APP_CONFIG.db.session)
+    params = ParamParser(request)
+    ret_val = Routes.routes_factory(APP_CONFIG.db.session, params.get_date())
     return ret_val
 
 
