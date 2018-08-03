@@ -87,7 +87,7 @@ class Routes(Base):
     def _route_from_gtfsdb(cls, r, agency_id=None):
         """ factory to genereate a Route obj from a queried gtfsdb route """
         agency = agency_id if agency_id else r.agency_id
-        otp_route_id = otp_utils.make_otp_route_id(r.route_id, agency)
+        otp_route_id = otp_utils.make_otp_id(r.route_id, agency)
         cfg = {
             'agencyName': r.agency.agency_name, 'id': otp_route_id,
             'longName': r.route_long_name, 'shortName': r.route_short_name,

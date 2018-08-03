@@ -1,4 +1,5 @@
 from ott.utils import object_utils
+from ott.utils import otp_utils
 from ott.utils import geo_utils
 
 from .base import Base
@@ -39,6 +40,9 @@ class Stops(Base):
         "dist": 928
       }
     ]
+
+    FYI, there's also a new OTP TI P&R service:
+    https://trimet-otp.conveyal.com/otp/routers/default/park_and_ride
     """
 
     def __init__(self, args={}):
@@ -47,9 +51,10 @@ class Stops(Base):
         object_utils.safe_set_from_dict(self, 'name', args)
         object_utils.safe_set_from_dict(self, 'lat', args)
         object_utils.safe_set_from_dict(self, 'lon', args)
-        object_utils.safe_set_from_dict(self, 'url', args)
-        object_utils.safe_set_from_dict(self, 'mode', args, def_val="BUS")
+        object_utils.safe_set_from_dict(self, 'url', args, always_cpy=False)
+        object_utils.safe_set_from_dict(self, 'mode', args, always_cpy=False)
         object_utils.safe_set_from_dict(self, 'dist', args, always_cpy=False)
+        object_utils.safe_set_from_dict(self, 'routes', args, always_cpy=False) # todo
 
     @classmethod
     def bbox_stops(cls, session, bbox):
@@ -72,9 +77,9 @@ class Stops(Base):
         :params db session, POINT(x,y), limit=10:
         TODO: otp nearest is TDB functionality ... so just call gtfsdb for now
         """
+        #import pdb; pdb.set_trace()
         from ott.data.dao.stop_dao import StopListDao
         stops = StopListDao.query_nearest_stops(session, geojson_point, radius, limit, is_active)
-        import pdb; pdb.set_trace()
         ret_val = cls._stop_list_from_gtfsdb_list(stops, agency_id)
         return ret_val
 
@@ -88,10 +93,47 @@ class Stops(Base):
         return ret_val
 
     @classmethod
-    def _stop_from_gtfsdb(cls, s, agency_id=None):
-        """ factory to genereate a Stop obj from a queried gtfsdb stop """
-        agency = agency_id if agency_id else s.agency_id
-        #otp_route_id = otp_utils.make_otp_route_id(r.route_id, agency)
+    def _stop_from_gtfsdb(cls, s, agency_id=None, detailed=False):
+        """
+        factory to genereate a Stop obj from a queried gtfsdb stop
+        TODO: thinking we should have a current (and maybe future) stop table in gtfsdb, where
+              agency, routes, tiny names, etc... are pre-calculated
+              and stops are updated weekly (daily) in this current schema
+        """
+        mode = None
+        agency_name = agency_id
+        route_short_names = None
+
+        # step 1: get mode and agency id (if needed)
+        if s.routes and len(s.routes) > 0:
+            for r in s.routes:
+                # step 1a: get agency and mode vars
+                if agency_id is None:
+                    agency_id = r.agency_id
+                agency_name = r.agency.agency_name
+                mode = r.type.otp_type
+
+                # step 1b: stopping condition
+                if mode and agency_id:
+                    break
+
+        # step 2: build out stop info if we want detailed info
+        if detailed:
+            from ott.data.dao.stop_dao import StopDao
+            route_short_names = StopDao.make_short_names(s) # note: this will probably be very expensive
+
+        # step 3: build the stop
+        otp_stop_id = otp_utils.make_otp_id(s.stop_id, agency_id)
+        cfg = {
+            'agencyName': agency_name, 'id': otp_stop_id,
+            'name': s.stop_name, 'code': s.stop_code,
+            'lat': float(s.stop_lat), 'lon': float(s.stop_lon),
+            'url': getattr(s, 'stop_url', None),
+            'mode': mode,
+            'dist': 111.111, # todo: dist and also routes
+            'routes': route_short_names
+        }
+        ret_val = Stops(cfg)
         return ret_val
 
     @classmethod
