@@ -11,6 +11,7 @@ from ott.utils.parse.url.geo_param_parser import GeoParamParser
 
 from ott.utils import json_utils
 from ott.utils import object_utils
+from ott.utils import otp_utils
 
 from ott.utils.svr.pyramid import response_utils
 from ott.utils.svr.pyramid.globals import *
@@ -64,9 +65,11 @@ def routes(request):
 def stop_routes(request):
     ret_val = []
     try:
+        #import pdb; pdb.set_trace()
+        params = ParamParser(request)
         stop = request.matchdict['stop']
-        agency_id, stop_id = stop.split(':')
-        ret_val = Routes.stop_routes_factory(APP_CONFIG.db.session, agency_id, stop_id)
+        agency_id, stop_id = otp_utils.get_agency_stop_ids(stop)
+        ret_val = Routes.stop_routes_factory(APP_CONFIG.db.session, stop_id, params.get_date(), agency_id)
     except Exception as e:
         log.warn(e)
     return ret_val
