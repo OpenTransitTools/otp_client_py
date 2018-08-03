@@ -41,12 +41,12 @@ def stops(request):
     Nearest Stops: stops?radius=1000&lat=45.4926336&lon=-122.63915519999999
     BBox Stops: stops?minLat=45.508542&maxLat=45.5197894&minLon=-122.696084&maxLon=-122.65594
     """
-    import pdb; pdb.set_trace()
+    #import pdb; pdb.set_trace()
     params = GeoParamParser(request)
     if params.has_radius():
-        ret_val = Stops.nearest_stops(APP_CONFIG.db.session, 2, 3, 5)
+        ret_val = Stops.nearest_stops(APP_CONFIG.db.session, params.point)
     elif params.has_bbox():
-        ret_val = Stops.bbox_stops(APP_CONFIG.db.session, 1, 3, 5, 4)
+        ret_val = Stops.bbox_stops(APP_CONFIG.db.session, params.bbox)
     else:
         ret_val = []
     return ret_val

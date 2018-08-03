@@ -46,9 +46,17 @@ class Routes(Base):
         super(Routes, self).__init__(args)
         object_utils.safe_set_from_dict(self, 'mode', args)
         object_utils.safe_set_from_dict(self, 'longName', args)
+        object_utils.safe_set_from_dict(self, 'sortOrder', args)
         object_utils.safe_set_from_dict(self, 'shortName', args, always_cpy=False)
         object_utils.safe_set_from_dict(self, 'color', args, always_cpy=False)
+        object_utils.safe_set_from_dict(self, 'textColor', args, always_cpy=False)
 
+    @classmethod
+    def otp_route_id(cls, route_id, agency_id=None):
+        ret_val = route_id
+        if agency_id:
+            ret_val = "{}:{}".format(agency_id, route_id)
+        return ret_val
 
     @classmethod
     def stop_routes_factory(cls, agency_id, stop_id):
@@ -65,7 +73,7 @@ class Routes(Base):
             color = stop_id
             mode = "TRAM"
 
-            otp_route_id = "{}:{}".format(agency_id, route_id)
+            otp_route_id = cls.otp_route_id(route_id, agency_id)
             cfg = {'agencyName': agency_name, 'id': otp_route_id,
                    'shortName': short_name, 'longName': long_name,
                    'mode': mode, 'color': color}
@@ -76,9 +84,8 @@ class Routes(Base):
 
 
     @classmethod
-    def routes_factory(cls, agency_id=None):
+    def mock(cls):
         """
-        :return a list of all route(s) for a given agency
         """
         ret_val = []
 
@@ -90,10 +97,37 @@ class Routes(Base):
             color = i
             mode = "TRAM"
 
-            otp_route_id = "{}:{}".format(agency_id, route_id)
+            otp_route_id = cls.otp_route_id(route_id, agency_id)
             cfg = {'agencyName': agency_name, 'id': otp_route_id,
                    'shortName': short_name, 'longName': long_name,
                    'mode': mode, 'color': color}
+            r = Routes(cfg)
+            ret_val.append(r.__dict__)
+
+        return ret_val
+
+    @classmethod
+    def routes_factory(cls, session, agency_id=None):
+        """
+        :return a list of all route(s) for a given agency
+        """
+        ret_val = []
+        from ott.data.dao.route_dao import RouteListDao
+        routes = RouteListDao.active_routes(session)
+        for r in routes:
+            #import pdb; pdb.set_trace()
+            agency = agency_id if agency_id else r.agency_id
+            otp_route_id = cls.otp_route_id(r.route_id, agency)
+            cfg = {'agencyName': r.agency.agency_name, 'id': otp_route_id,
+                   'longName': r.route_long_name, 'mode': r.type.otp_type,
+                   'sortOrder': r.route_sort_order
+            }
+            if r.route_short_name:
+                cfg['shortName'] = r.route_short_name
+            if r.route_color:
+                cfg['color'] = r.route_color
+            if r.route_text_color:
+                cfg['textColor'] = r.route_text_color
             r = Routes(cfg)
             ret_val.append(r.__dict__)
 
