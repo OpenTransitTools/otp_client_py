@@ -1,6 +1,5 @@
 from ott.utils import object_utils
 from ott.utils import otp_utils
-from ott.utils import geo_utils
 
 from .base import Base
 
@@ -43,8 +42,11 @@ class Stops(Base):
 
     FYI, there's also a new OTP TI P&R service:
     https://trimet-otp.conveyal.com/otp/routers/default/park_and_ride
-    """
 
+    ALSO STOP SCHEDULES:
+    https://trimet-otp.conveyal.com/otp/routers/default/index/stops/TriMet:823/stoptimes?timeRange=14400
+
+    """
     def __init__(self, args={}):
         super(Stops, self).__init__(args)
         object_utils.safe_set_from_dict(self, 'code', args)
@@ -57,8 +59,14 @@ class Stops(Base):
         object_utils.safe_set_from_dict(self, 'routes', args, always_cpy=False) # todo
 
     @classmethod
-    def bbox_stops(cls, session, bbox):
+    def bbox_stops(cls, session, bbox, limit=1000, agency_id=None):
+        """
+        :return a list of nearest stops
+        """
         ret_val = []
+        from ott.data.dao.stop_dao import StopListDao
+        stops = StopListDao.stops_by_bbox(session, bbox.to_geojson(), limit, agency_id)
+        ret_val = cls._stop_list_from_gtfsdb_list(stops, agency_id)
         return ret_val
 
     @classmethod
@@ -130,7 +138,7 @@ class Stops(Base):
             'lat': float(s.stop_lat), 'lon': float(s.stop_lon),
             'url': getattr(s, 'stop_url', None),
             'mode': mode,
-            'dist': 111.111, # todo: dist and also routes
+            'dist': 111.111,  # todo: dist and also routes
             'routes': route_short_names
         }
         ret_val = Stops(cfg)
@@ -143,9 +151,8 @@ class Stops(Base):
         for i in range(num_recs):
             stop_id = i+1
             cfg = {'id': stop_id}
-            if isinstance(geom, ott.utils.geo.point.Point):
-                distance = radius + 2.2 + float(i)
-                cfg['dist'] = distance
+            distance = 2.2 + float(i)
+            cfg['dist'] = distance
             s = Stops(cfg)
             ret_val.append(s.__dict__)
         return ret_val

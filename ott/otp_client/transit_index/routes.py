@@ -42,7 +42,6 @@ class Routes(Base):
       }
     ]
     """
-
     def __init__(self, args={}):
         super(Routes, self).__init__(args)
         object_utils.safe_set_from_dict(self, 'mode', args)
