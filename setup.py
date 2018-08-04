@@ -11,7 +11,6 @@ requires = [
     'ott.geocoder',
     'ott.data[postgresql]',
 
-    'gtfsdb',
     'simplejson',
     'python-dateutil',
 
