@@ -1,5 +1,6 @@
 from ott.utils import object_utils
 from ott.utils import otp_utils
+from ott.utils import geo_utils
 
 from .base import Base
 
@@ -80,20 +81,20 @@ class Stops(Base):
         #import pdb; pdb.set_trace()
         from ott.data.dao.stop_dao import StopListDao
         stops = StopListDao.query_nearest_stops(session, point.to_geojson(), point.radius, limit, is_active=True)
-        ret_val = cls._stop_list_from_gtfsdb_list(stops, agency_id)
+        ret_val = cls._stop_list_from_gtfsdb_list(stops, point, agency_id)
         return ret_val
 
     @classmethod
-    def _stop_list_from_gtfsdb_list(cls, gtfsdb_stop_list, agency_id=None):
+    def _stop_list_from_gtfsdb_list(cls, gtfsdb_stop_list, point=None, agency_id=None):
         """ input gtfsdb list, output Route obj list """
         ret_val = []
         for s in gtfsdb_stop_list:
-            stop = cls._stop_from_gtfsdb(s, agency_id)
+            stop = cls._stop_from_gtfsdb(s, point, agency_id)
             ret_val.append(stop.__dict__)
         return ret_val
 
     @classmethod
-    def _stop_from_gtfsdb(cls, s, agency_id=None, detailed=False):
+    def _stop_from_gtfsdb(cls, s, point=None, agency_id=None, detailed=False):
         """
         factory to genereate a Stop obj from a queried gtfsdb stop
         TODO: thinking we should have a current (and maybe future) stop table in gtfsdb, where
@@ -130,9 +131,11 @@ class Stops(Base):
             'lat': float(s.stop_lat), 'lon': float(s.stop_lon),
             'url': getattr(s, 'stop_url', None),
             'mode': mode,
-            'dist': 111.111,  # todo: dist and also routes
             'routes': route_short_names
         }
+        if point:
+            cfg['dist'] = geo_utils.distance(point.lat, point.lon, s.stop_lat, s.stop_lon)
+
         ret_val = Stops(cfg)
         return ret_val
 
