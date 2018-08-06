@@ -66,7 +66,7 @@ class Stops(Base):
         """
         ret_val = []
         from ott.data.dao.stop_dao import StopListDao
-        stops = StopListDao.stops_by_bbox(session, bbox.to_geojson(), limit, agency_id)
+        stops = StopListDao.query_bbox_stops(session, bbox.to_geojson(), limit, agency_id)
         ret_val = cls._stop_list_from_gtfsdb_list(stops, agency_id)
         return ret_val
 
@@ -134,6 +134,7 @@ class Stops(Base):
             'routes': route_short_names
         }
         if point:
+            # todo ... have the dist come from PostGIS (Duh!)
             cfg['dist'] = geo_utils.distance(point.lat, point.lon, s.stop_lat, s.stop_lon)
 
         ret_val = Stops(cfg)
