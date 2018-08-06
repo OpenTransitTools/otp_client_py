@@ -61,7 +61,7 @@ class Stops(Base):
     @classmethod
     def bbox_stops(cls, session, bbox, limit=1000, agency_id=None):
         """
-        :return a list of nearest stops
+        :return a list of stops within the bbox
         """
         ret_val = []
         from ott.data.dao.stop_dao import StopListDao
@@ -72,18 +72,10 @@ class Stops(Base):
     @classmethod
     def nearest_stops(cls, session, point, limit=10, agency_id=None):
         """
-        :return a list of nearest stops
-        """
-        # todo: use OTP nearest stops in the future
-        ret_val = cls._gtfsdb_nearest_stops(session, point.to_geojson(), point.radius, limit, agency_id)
-        return ret_val
-
-    @classmethod
-    def _gtfsdb_nearest_stops(cls, session, geojson_point, radius=None, limit=10, is_active=True, agency_id=None):
-        """
         query nearest stops based on walk graph
         :params db session, POINT(x,y), limit=10:
         TODO: otp nearest is TDB functionality ... so just call gtfsdb for now
+        :return a list of nearest stops
         """
         #import pdb; pdb.set_trace()
         from ott.data.dao.stop_dao import StopListDao
