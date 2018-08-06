@@ -79,7 +79,7 @@ class Stops(Base):
         """
         #import pdb; pdb.set_trace()
         from ott.data.dao.stop_dao import StopListDao
-        stops = StopListDao.query_nearest_stops(session, geojson_point, radius, limit, is_active)
+        stops = StopListDao.query_nearest_stops(session, point.to_geojson(), point.radius, limit, is_active=True)
         ret_val = cls._stop_list_from_gtfsdb_list(stops, agency_id)
         return ret_val
 
