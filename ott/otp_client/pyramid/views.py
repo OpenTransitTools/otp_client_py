@@ -46,9 +46,11 @@ def stops(request):
     #import pdb; pdb.set_trace()
     params = GeoParamParser(request)
     if params.has_radius():
-        ret_val = Stops.nearest_stops(APP_CONFIG.db.session, params.point)
+        limit = params.get_first_val_as_int('limit', 10)
+        ret_val = Stops.nearest_stops(APP_CONFIG.db.session, params.point, limit)
     elif params.has_bbox():
-        ret_val = Stops.bbox_stops(APP_CONFIG.db.session, params.bbox)
+        limit = params.get_first_val_as_int('limit', 1000)
+        ret_val = Stops.bbox_stops(APP_CONFIG.db.session, params.bbox, limit)
     else:
         ret_val = []
     return ret_val
