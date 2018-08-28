@@ -67,7 +67,6 @@ def routes(request):
 def stop_routes(request):
     ret_val = []
     try:
-        #import pdb; pdb.set_trace()
         params = ParamParser(request)
         stop = request.matchdict['stop']
         agency_id, stop_id = otp_utils.get_agency_stop_ids(stop)
