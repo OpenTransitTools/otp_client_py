@@ -12,12 +12,12 @@ def main(global_config, **ini_settings):
     """
     #import pdb; pdb.set_trace()
     app = AppConfig(**ini_settings)
-    kw = app.gtfsdb_param_from_config()
 
     from gtfsdb import Database
     from zope.sqlalchemy import ZopeTransactionExtension
-    db = Database(u, s, g, session_extenstion=ZopeTransactionExtension())
-    #db = Database(**kw)
+    kw = app.gtfsdb_param_from_config()
+    kw['session_extenstion'] = ZopeTransactionExtension()
+    db = Database(**kw)
     app.set_db(db)
 
     import views
