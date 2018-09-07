@@ -34,6 +34,7 @@ def do_view_config(cfg):
     cfg.add_route('plan_trip', '/plan_trip')
     cfg.add_route('ti_routes', '/ti/routes')
     cfg.add_route('ti_stops', '/ti/stops')
+    cfg.add_route('ti_stop', '/ti/stops/{stop}')
     cfg.add_route('ti_stop_routes', '/ti/stops/{stop}/routes')
 
 
@@ -56,10 +57,19 @@ def stops(request):
     return ret_val
 
 
-@view_config(route_name='ti_routes', renderer='json', http_cache=CACHE_LONG)
-def routes(request):
-    params = ParamParser(request)
-    ret_val = Routes.routes_factory(APP_CONFIG.db.session, params.get_date())
+@view_config(route_name='ti_stop', renderer='json', http_cache=CACHE_LONG)
+def stop(request):
+    """
+    Stop Info: index/stops/TriMet:9354
+    """
+    ret_val = []
+    try:
+        params = ParamParser(request)
+        stop = request.matchdict['stop']
+        agency_id, stop_id = otp_utils.get_agency_stop_ids(stop)
+        ret_val = {'a':agency_id, 's': stop_id}
+    except Exception as e:
+        log.warn(e)
     return ret_val
 
 
@@ -73,6 +83,13 @@ def stop_routes(request):
         ret_val = Routes.stop_routes_factory(APP_CONFIG.db.session, stop_id, params.get_date(), agency_id)
     except Exception as e:
         log.warn(e)
+    return ret_val
+
+
+@view_config(route_name='ti_routes', renderer='json', http_cache=CACHE_LONG)
+def routes(request):
+    params = ParamParser(request)
+    ret_val = Routes.routes_factory(APP_CONFIG.db.session, params.get_date())
     return ret_val
 
 
