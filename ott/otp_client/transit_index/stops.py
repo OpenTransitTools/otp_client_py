@@ -41,6 +41,24 @@ class Stops(Base):
       }
     ]
 
+
+    Stop call https://<domain & port>/otp/routers/default/index/stops/<agency>:<stop_id>
+    {
+        "id": "TriMet:9354",
+        "code": "9354",
+        "name": "W Burnside & SW Osage",
+        "lat": 45.523777,
+        "lon": -122.700989,
+        "url": "http://trimet.org/#tracker/stop/9354",
+        "desc": "Eastbound stop in Portland (Stop ID 9354)",
+        "zoneId": "B",
+        "locationType": 0,
+        "wheelchairBoarding": 0,
+        "vehicleType": -999,
+        "vehicleTypeSet": false
+    }
+
+
     FYI, there's also a new OTP TI P&R service:
     https://trimet-otp.conveyal.com/otp/routers/default/park_and_ride
 
@@ -52,12 +70,18 @@ class Stops(Base):
         super(Stops, self).__init__(args)
         object_utils.safe_set_from_dict(self, 'code', args)
         object_utils.safe_set_from_dict(self, 'name', args)
+        object_utils.safe_set_from_dict(self, 'desc', args, always_cpy=False)
         object_utils.safe_set_from_dict(self, 'lat', args)
         object_utils.safe_set_from_dict(self, 'lon', args)
         object_utils.safe_set_from_dict(self, 'url', args, always_cpy=False)
-        object_utils.safe_set_from_dict(self, 'mode', args, always_cpy=False)
         object_utils.safe_set_from_dict(self, 'dist', args, always_cpy=False)
-        object_utils.safe_set_from_dict(self, 'routes', args, always_cpy=False) # todo
+
+        object_utils.safe_set_from_dict(self, 'zoneId', args, always_cpy=False)
+        object_utils.safe_set_from_dict(self, 'routes', args, always_cpy=False)  # todo
+        object_utils.safe_set_from_dict(self, 'mode', args, always_cpy=False) # change to vehicleType??
+        object_utils.safe_set_from_dict(self, 'locationType', args, always_cpy=False)
+        object_utils.safe_set_from_dict(self, 'vehicleType', args, def_val=-999, always_cpy=False)
+        object_utils.safe_set_from_dict(self, 'vehicleTypeSet', args, def_val=False, always_cpy=False)
 
     @classmethod
     def bbox_stops(cls, session, bbox, limit=1000, agency_id=None):
@@ -67,7 +91,7 @@ class Stops(Base):
         ret_val = []
         from ott.data.dao.stop_dao import StopListDao
         stops = StopListDao.query_bbox_stops(session, bbox.to_geojson(), limit, agency_id)
-        ret_val = cls._stop_list_from_gtfsdb_list(stops, agency_id)
+        ret_val = cls._stop_list_from_gtfsdb_list(stops, agency_id, limit)
         return ret_val
 
     @classmethod
@@ -81,14 +105,27 @@ class Stops(Base):
         #import pdb; pdb.set_trace()
         from ott.data.dao.stop_dao import StopListDao
         stops = StopListDao.query_nearest_stops(session, point.to_geojson(), point.radius, limit, is_active=True)
-        ret_val = cls._stop_list_from_gtfsdb_list(stops, point, agency_id)
+        ret_val = cls._stop_list_from_gtfsdb_list(stops, point, agency_id, limit)
         return ret_val
 
     @classmethod
-    def _stop_list_from_gtfsdb_list(cls, gtfsdb_stop_list, point=None, agency_id=None):
+    def stop(cls, session, stop_id, agency_id=None):
+        """
+        query stop from db via stop id and agency
+        :return a stop record
+        """
+        #import pdb; pdb.set_trace()
+        from ott.data.dao.stop_dao import StopDao
+        stop = StopDao.query_stop(session, stop_id, is_active=True)
+        ret_val = cls._stop_from_gtfsdb(stop, agency_id=agency_id, detailed=True)
+        return ret_val
+
+    @classmethod
+    def _stop_list_from_gtfsdb_list(cls, gtfsdb_stop_list, point=None, agency_id=None, limit=10):
         """ input gtfsdb list, output Route obj list """
         ret_val = []
-        for s in gtfsdb_stop_list:
+        for i, s in enumerate(gtfsdb_stop_list):
+            if i > limit: break
             stop = cls._stop_from_gtfsdb(s, point, agency_id)
             ret_val.append(stop.__dict__)
         return ret_val
@@ -102,6 +139,7 @@ class Stops(Base):
               and stops are updated weekly (daily) in this current schema
         """
         mode = None
+        location_type = None
         agency_name = agency_id
         route_short_names = None
 
@@ -113,6 +151,7 @@ class Stops(Base):
                     agency_id = r.agency_id
                 agency_name = r.agency.agency_name
                 mode = r.type.otp_type
+                location_type = r.type.gfts_type
 
                 # step 1b: stopping condition
                 if mode and agency_id:
@@ -131,6 +170,7 @@ class Stops(Base):
             'lat': float(s.stop_lat), 'lon': float(s.stop_lon),
             'url': getattr(s, 'stop_url', None),
             'mode': mode,
+            'locationType': location_type,
             'routes': route_short_names
         }
         if point:
