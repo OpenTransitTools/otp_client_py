@@ -18,6 +18,8 @@ requires = [
     'pyramid_tm',
     'pyramid_exclog',
     'waitress',
+
+    'protobuf<3.0' # 3.x requires 'six>=1.9' ... but some other lib wants six=1.4
 ]
 
 extras_require = dict(
