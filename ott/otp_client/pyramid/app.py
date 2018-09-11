@@ -20,7 +20,7 @@ def main(global_config, **ini_settings):
     db = Database(**kw)
     app.set_db(db)
 
-    import views
+    from . import views
     app.config_include_scan(views)
 
     return app.make_wsgi_app()
