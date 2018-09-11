@@ -80,7 +80,8 @@ def stop_routes(request):
         params = ParamParser(request)
         stop = request.matchdict['stop']
         agency_id, stop_id = otp_utils.get_agency_stop_ids(stop)
-        ret_val = Routes.stop_routes_factory(APP_CONFIG.db.session, stop_id, params.get_date(), agency_id)
+        with APP_CONFIG.db.managed_session(timeout=10) as session:
+            ret_val = Routes.stop_routes_factory(session, stop_id, params.get_date(), agency_id)
     except Exception as e:
         log.warn(e)
     return ret_val
@@ -89,7 +90,8 @@ def stop_routes(request):
 @view_config(route_name='ti_routes', renderer='json', http_cache=CACHE_LONG)
 def routes(request):
     params = ParamParser(request)
-    ret_val = Routes.routes_factory(APP_CONFIG.db.session, params.get_date())
+    with APP_CONFIG.db.managed_session(timeout=10) as session:
+        ret_val = Routes.routes_factory(session, params.get_date())
     return ret_val
 
 
