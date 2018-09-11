@@ -48,10 +48,12 @@ def stops(request):
     params = GeoParamParser(request)
     if params.has_radius():
         limit = params.get_first_val_as_int('limit', 10)
-        ret_val = Stops.nearest_stops(APP_CONFIG.db.session, params.point, limit)
+        with APP_CONFIG.db.managed_session(timeout=10) as session:
+            ret_val = Stops.nearest_stops(session, params.point, limit)
     elif params.has_bbox():
         limit = params.get_first_val_as_int('limit', 1000)
-        ret_val = Stops.bbox_stops(APP_CONFIG.db.session, params.bbox, limit)
+        with APP_CONFIG.db.managed_session(timeout=10) as session:
+            ret_val = Stops.bbox_stops(session, params.bbox, limit)
     else:
         ret_val = []
     return ret_val
@@ -63,13 +65,12 @@ def stop(request):
     Stop Info: index/stops/TriMet:9354
     """
     ret_val = []
-    try:
-        params = ParamParser(request)
-        stop = request.matchdict['stop']
-        agency_id, stop_id = otp_utils.get_agency_stop_ids(stop)
-        ret_val = {'a':agency_id, 's': stop_id}
-    except Exception as e:
-        log.warn(e)
+
+    params = ParamParser(request)
+    stop = request.matchdict['stop']
+    agency_id, stop_id = otp_utils.get_agency_stop_ids(stop)
+    with APP_CONFIG.db.managed_session(timeout=10) as session:
+        ret_val = {'a': agency_id, 's': stop_id}
     return ret_val
 
 
@@ -110,6 +111,7 @@ def plan_trip(request):
 
 
 def get_planner():
+    """ cache's up TripPlanner object (stores it in our APP_CONFIG) """
     # import pdb; pdb.set_trace()
     if getattr(APP_CONFIG, 'trip_planner', None) is None:
         otp_url = APP_CONFIG.ini_settings.get('otp_url')
