@@ -109,15 +109,17 @@ class Stops(Base):
         return ret_val
 
     @classmethod
-    def stop(cls, session, stop_id, agency_id=None):
+    def stop(cls, session, stop_id, agency_id=None, def_val={}):
         """
         query stop from db via stop id and agency
         :return a stop record
         """
         #import pdb; pdb.set_trace()
+        ret_val = def_val
         from ott.data.dao.stop_dao import StopDao
-        stop = StopDao.query_stop(session, stop_id, is_active=True)
-        ret_val = cls._stop_from_gtfsdb(stop, agency_id=agency_id, detailed=True)
+        stop = StopDao.query_orm_for_stop(session, stop_id)
+        if stop:
+            ret_val = cls._stop_from_gtfsdb(stop, agency_id=agency_id, detailed=True)
         return ret_val
 
     @classmethod
@@ -151,7 +153,7 @@ class Stops(Base):
                     agency_id = r.agency_id
                 agency_name = r.agency.agency_name
                 mode = r.type.otp_type
-                location_type = r.type.gfts_type
+                #location_type = r.type.gfts_type  # TODO: not in maps7 db, etc...
 
                 # step 1b: stopping condition
                 if mode and agency_id:
@@ -160,7 +162,7 @@ class Stops(Base):
         # step 2: build out stop info if we want detailed info
         if detailed:
             from ott.data.dao.stop_dao import StopDao
-            route_short_names = StopDao.make_short_names(s) # note: this will probably be very expensive
+            route_short_names = StopDao.make_short_names(s)  # note: this will probably be very expensive
 
         # step 3: build the stop
         otp_stop_id = otp_utils.make_otp_id(s.stop_id, agency_id)

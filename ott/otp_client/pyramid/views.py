@@ -44,7 +44,6 @@ def stops(request):
     Nearest Stops: stops?radius=1000&lat=45.4926336&lon=-122.63915519999999
     BBox Stops: stops?minLat=45.508542&maxLat=45.5197894&minLon=-122.696084&maxLon=-122.65594
     """
-    #import pdb; pdb.set_trace()
     params = GeoParamParser(request)
     if params.has_radius():
         limit = params.get_first_val_as_int('limit', 10)
@@ -63,28 +62,38 @@ def stops(request):
 def stop(request):
     """
     Stop Info: index/stops/TriMet:9354
+    {
+      "id":"TriMet:9311",
+      "code":"9311",
+      "lat":45.526817, "lon":-122.674106,
+      "name":"NW Glisan & 3rd",
+      "desc":"Westbound stop in Portland (Stop ID 9311)",
+      "url":"http://trimet.org/#tracker/stop/9311",
+      "zoneId":"B",
+      "locationType":0, (always 0)
+      "wheelchairBoarding":0,(always 0)
+      "vehicleType":-999, (always -999)
+      "vehicleTypeSet":false (always false)
+    }
     """
-    ret_val = []
-
-    params = ParamParser(request)
+    ret_val = {}
     stop = request.matchdict['stop']
     agency_id, stop_id = otp_utils.get_agency_stop_ids(stop)
     with APP_CONFIG.db.managed_session(timeout=10) as session:
-        ret_val = {'a': agency_id, 's': stop_id}
+        s = Stops.stop(session, stop_id, agency_id)
+        if s:
+            ret_val = s.__dict__
     return ret_val
 
 
 @view_config(route_name='ti_stop_routes', renderer='json', http_cache=CACHE_LONG)
 def stop_routes(request):
     ret_val = []
-    try:
-        params = ParamParser(request)
-        stop = request.matchdict['stop']
-        agency_id, stop_id = otp_utils.get_agency_stop_ids(stop)
-        with APP_CONFIG.db.managed_session(timeout=10) as session:
-            ret_val = Routes.stop_routes_factory(session, stop_id, params.get_date(), agency_id)
-    except Exception as e:
-        log.warn(e)
+    params = ParamParser(request)
+    stop = request.matchdict['stop']
+    agency_id, stop_id = otp_utils.get_agency_stop_ids(stop)
+    with APP_CONFIG.db.managed_session(timeout=10) as session:
+        ret_val = Routes.stop_routes_factory(session, stop_id, params.get_date(), agency_id)
     return ret_val
 
 
