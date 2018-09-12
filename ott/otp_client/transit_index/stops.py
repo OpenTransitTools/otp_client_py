@@ -119,7 +119,7 @@ class Stops(Base):
         from ott.data.dao.stop_dao import StopDao
         stop = StopDao.query_orm_for_stop(session, stop_id)
         if stop:
-            ret_val = cls._stop_from_gtfsdb(stop, agency_id=agency_id, detailed=True)
+            ret_val = cls._stop_from_gtfsdb(stop, agency_id=agency_id)
         return ret_val
 
     @classmethod
@@ -141,19 +141,19 @@ class Stops(Base):
               and stops are updated weekly (daily) in this current schema
         """
         mode = None
-        location_type = None
+        location_type = s.location_type
         agency_name = agency_id
         route_short_names = None
 
         # step 1: get mode and agency id (if needed)
-        if s.routes and len(s.routes) > 0:
+        if detailed and s.routes and len(s.routes) > 0:
             for r in s.routes:
                 # step 1a: get agency and mode vars
                 if agency_id is None:
                     agency_id = r.agency_id
                 agency_name = r.agency.agency_name
                 mode = r.type.otp_type
-                #location_type = r.type.gfts_type  # TODO: not in maps7 db, etc...
+                location_type = r.type.route_type
 
                 # step 1b: stopping condition
                 if mode and agency_id:
@@ -167,8 +167,9 @@ class Stops(Base):
         # step 3: build the stop
         otp_stop_id = otp_utils.make_otp_id(s.stop_id, agency_id)
         cfg = {
-            'agencyName': agency_name, 'id': otp_stop_id,
-            'name': s.stop_name, 'code': s.stop_code,
+            'agencyName': agency_name,
+            'id': otp_stop_id, 'code': s.stop_code,
+            'name': s.stop_name, 'desc': s.stop_desc,
             'lat': float(s.stop_lat), 'lon': float(s.stop_lon),
             'url': getattr(s, 'stop_url', None),
             'mode': mode,

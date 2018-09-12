@@ -9,12 +9,10 @@ from ott.geocoder.geosolr import GeoSolr
 from ott.utils.parse.url.param_parser import ParamParser
 from ott.utils.parse.url.geo_param_parser import GeoParamParser
 
-from ott.utils import json_utils
-from ott.utils import object_utils
 from ott.utils import otp_utils
 
 from ott.utils.svr.pyramid import response_utils
-from ott.utils.svr.pyramid.globals import *
+from ott.utils.svr.pyramid import globals
 
 import logging
 log = logging.getLogger(__file__)
@@ -33,17 +31,18 @@ def set_app_config(app_cfg):
 def do_view_config(cfg):
     cfg.add_route('plan_trip', '/plan_trip')
     cfg.add_route('ti_routes', '/ti/routes')
-    cfg.add_route('ti_stops', '/ti/stops')
     cfg.add_route('ti_stop', '/ti/stops/{stop}')
+    cfg.add_route('ti_nearest_stops', '/ti/stops')
     cfg.add_route('ti_stop_routes', '/ti/stops/{stop}/routes')
 
 
-@view_config(route_name='ti_stops', renderer='json', http_cache=CACHE_LONG)
-def stops(request):
+@view_config(route_name='ti_nearest_stops', renderer='json', http_cache=globals.CACHE_LONG)
+def nearest_stops(request):
     """
     Nearest Stops: stops?radius=1000&lat=45.4926336&lon=-122.63915519999999
     BBox Stops: stops?minLat=45.508542&maxLat=45.5197894&minLon=-122.696084&maxLon=-122.65594
     """
+    import pdb; pdb.set_trace()
     params = GeoParamParser(request)
     if params.has_radius():
         limit = params.get_first_val_as_int('limit', 10)
@@ -58,7 +57,7 @@ def stops(request):
     return ret_val
 
 
-@view_config(route_name='ti_stop', renderer='json', http_cache=CACHE_LONG)
+@view_config(route_name='ti_stop', renderer='json', http_cache=globals.CACHE_LONG)
 def stop(request):
     """
     Stop Info: index/stops/TriMet:9354
@@ -86,7 +85,7 @@ def stop(request):
     return ret_val
 
 
-@view_config(route_name='ti_stop_routes', renderer='json', http_cache=CACHE_LONG)
+@view_config(route_name='ti_stop_routes', renderer='json', http_cache=globals.CACHE_LONG)
 def stop_routes(request):
     ret_val = []
     params = ParamParser(request)
@@ -97,7 +96,7 @@ def stop_routes(request):
     return ret_val
 
 
-@view_config(route_name='ti_routes', renderer='json', http_cache=CACHE_LONG)
+@view_config(route_name='ti_routes', renderer='json', http_cache=globals.CACHE_LONG)
 def routes(request):
     params = ParamParser(request)
     with APP_CONFIG.db.managed_session(timeout=10) as session:
@@ -105,14 +104,14 @@ def routes(request):
     return ret_val
 
 
-@view_config(route_name='plan_trip', renderer='json', http_cache=CACHE_SHORT)
+@view_config(route_name='plan_trip', renderer='json', http_cache=globals.CACHE_SHORT)
 def plan_trip(request):
     ret_val = None
     try:
         trip = get_planner().plan_trip(request)
         ret_val = response_utils.json_response(trip)
     except Exception as e:
-        log.warn(e)
+        log.warning(e)
         ret_val = response_utils.sys_error_response()
     finally:
         pass
