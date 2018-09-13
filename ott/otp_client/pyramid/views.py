@@ -18,7 +18,7 @@ import logging
 log = logging.getLogger(__file__)
 
 
-APP_CONFIG=None
+APP_CONFIG = None
 def set_app_config(app_cfg):
     """
     called set the singleton AppConfig object
@@ -42,7 +42,7 @@ def nearest_stops(request):
     Nearest Stops: stops?radius=1000&lat=45.4926336&lon=-122.63915519999999
     BBox Stops: stops?minLat=45.508542&maxLat=45.5197894&minLon=-122.696084&maxLon=-122.65594
     """
-    import pdb; pdb.set_trace()
+     # import pdb; pdb.set_trace()
     params = GeoParamParser(request)
     if params.has_radius():
         limit = params.get_first_val_as_int('limit', 10)
