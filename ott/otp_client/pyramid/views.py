@@ -78,6 +78,8 @@ def stop(request):
     ret_val = {}
     stop = request.matchdict['stop']
     agency_id, stop_id = otp_utils.get_agency_stop_ids(stop)
+    if agency_id is None:
+        agency_id = APP_CONFIG.get_agency(request)
     with APP_CONFIG.db.managed_session(timeout=10) as session:
         s = Stops.stop(session, stop_id, agency_id)
         if s:
@@ -91,6 +93,8 @@ def stop_routes(request):
     params = ParamParser(request)
     stop = request.matchdict['stop']
     agency_id, stop_id = otp_utils.get_agency_stop_ids(stop)
+    if agency_id is None:
+        agency_id = APP_CONFIG.get_agency(params)
     with APP_CONFIG.db.managed_session(timeout=10) as session:
         ret_val = Routes.stop_routes_factory(session, stop_id, params.get_date(), agency_id)
     return ret_val

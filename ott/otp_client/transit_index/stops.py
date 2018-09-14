@@ -149,9 +149,10 @@ class Stops(Base):
         if detailed and s.routes and len(s.routes) > 0:
             for r in s.routes:
                 # step 1a: get agency and mode vars
-                if agency_id is None:
+                if r.agency_id:
                     agency_id = r.agency_id
-                agency_name = r.agency.agency_name
+                if r.agency.agency_name:
+                    agency_name = r.agency.agency_name
                 mode = r.type.otp_type
                 location_type = r.type.route_type
 
