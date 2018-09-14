@@ -84,18 +84,18 @@ class Stops(Base):
         object_utils.safe_set_from_dict(self, 'vehicleTypeSet', args, def_val=False, always_cpy=False)
 
     @classmethod
-    def bbox_stops(cls, session, bbox, limit=1000, agency_id=None):
+    def bbox_stops(cls, session, bbox, agency_id=None, limit=1000, detailed=False):
         """
         :return a list of stops within the bbox
         """
         ret_val = []
         from ott.data.dao.stop_dao import StopListDao
-        stops = StopListDao.query_bbox_stops(session, bbox.to_geojson(), limit, agency_id)
-        ret_val = cls._stop_list_from_gtfsdb_list(stops, agency_id, limit)
+        stops = StopListDao.query_bbox_stops(session, bbox.to_geojson(), limit, agency_id) # todo move agency param
+        ret_val = cls._stop_list_from_gtfsdb_list(stops, None, agency_id, limit, detailed)
         return ret_val
 
     @classmethod
-    def nearest_stops(cls, session, point, limit=10, agency_id=None):
+    def nearest_stops(cls, session, point, agency_id=None, limit=10, detailed=False):
         """
         query nearest stops based on walk graph
         :params db session, POINT(x,y), limit=10:
@@ -105,11 +105,11 @@ class Stops(Base):
         #import pdb; pdb.set_trace()
         from ott.data.dao.stop_dao import StopListDao
         stops = StopListDao.query_nearest_stops(session, point.to_geojson(), point.radius, limit, is_active=True)
-        ret_val = cls._stop_list_from_gtfsdb_list(stops, point, agency_id, limit)
+        ret_val = cls._stop_list_from_gtfsdb_list(stops, point, agency_id, limit, detailed)
         return ret_val
 
     @classmethod
-    def stop(cls, session, stop_id, agency_id=None, def_val={}):
+    def stop(cls, session, stop_id, agency_id=None, detailed=False, def_val={}):
         """
         query stop from db via stop id and agency
         :return a stop record
@@ -119,21 +119,21 @@ class Stops(Base):
         from ott.data.dao.stop_dao import StopDao
         stop = StopDao.query_orm_for_stop(session, stop_id)
         if stop:
-            ret_val = cls._stop_from_gtfsdb(stop, agency_id=agency_id)
+            ret_val = cls._stop_from_gtfsdb(stop, None, agency_id, detailed)
         return ret_val
 
     @classmethod
-    def _stop_list_from_gtfsdb_list(cls, gtfsdb_stop_list, point=None, agency_id=None, limit=10):
+    def _stop_list_from_gtfsdb_list(cls, gtfsdb_stop_list, point, agency_id, limit=10, detailed=False):
         """ input gtfsdb list, output Route obj list """
         ret_val = []
         for i, s in enumerate(gtfsdb_stop_list):
             if i > limit: break
-            stop = cls._stop_from_gtfsdb(s, point, agency_id)
+            stop = cls._stop_from_gtfsdb(s, point, agency_id, detailed)
             ret_val.append(stop.__dict__)
         return ret_val
 
     @classmethod
-    def _stop_from_gtfsdb(cls, s, point=None, agency_id=None, detailed=False):
+    def _stop_from_gtfsdb(cls, s, point, agency_id, detailed):
         """
         factory to genereate a Stop obj from a queried gtfsdb stop
         TODO: thinking we should have a current (and maybe future) stop table in gtfsdb, where

@@ -39,19 +39,20 @@ def do_view_config(cfg):
 @view_config(route_name='ti_nearest_stops', renderer='json', http_cache=globals.CACHE_LONG)
 def nearest_stops(request):
     """
-    Nearest Stops: stops?radius=1000&lat=45.4926336&lon=-122.63915519999999
+    Nearest Stops: stops?radius=1000&lat=45.4926&lon=-122.6391
     BBox Stops: stops?minLat=45.508542&maxLat=45.5197894&minLon=-122.696084&maxLon=-122.65594
     """
      # import pdb; pdb.set_trace()
     params = GeoParamParser(request)
+    agency_id = APP_CONFIG.get_agency(params)
     if params.has_radius():
         limit = params.get_first_val_as_int('limit', 10)
         with APP_CONFIG.db.managed_session(timeout=10) as session:
-            ret_val = Stops.nearest_stops(session, params.point, limit)
+            ret_val = Stops.nearest_stops(session, params.point, agency_id, limit)
     elif params.has_bbox():
         limit = params.get_first_val_as_int('limit', 1000)
         with APP_CONFIG.db.managed_session(timeout=10) as session:
-            ret_val = Stops.bbox_stops(session, params.bbox, limit)
+            ret_val = Stops.bbox_stops(session, params.bbox, agency_id, limit)
     else:
         ret_val = []
     return ret_val
