@@ -92,6 +92,9 @@ def stop(request):
 
 @view_config(route_name='ti_stop_routes', renderer='json', http_cache=globals.CACHE_LONG)
 def stop_routes(request):
+    """
+
+    """
     ret_val = []
     params = ParamParser(request)
     stop = request.matchdict['stop']
@@ -105,7 +108,9 @@ def stop_routes(request):
 
 @view_config(route_name='ti_routes_list', renderer='json', http_cache=globals.CACHE_LONG)
 def routes_list(request):
-    """  """
+    """
+
+    """
     params = ParamParser(request)
     with APP_CONFIG.db.managed_session(timeout=10) as session:
         ret_val = Routes.routes_factory(session, params.get_date())
@@ -116,21 +121,23 @@ def routes_list(request):
 def route(request):
     """
     https://trimet-otp.conveyal.com/otp/routers/default/index/routes/TriMet:18
-https://trimet-otp.conveyal.com/otp/routers/default/index/routes/TriMet:18/patterns
-https://trimet-otp.conveyal.com/otp/routers/default/index/patterns/TriMet:18:0:02/geometry
-https://trimet-otp.conveyal.com/otp/routers/default/index/patterns/TriMet:18:0:01/geometry
+
     """
     route = request.matchdict['route']
     agency_id, route_id = otp_utils.get_agency_stop_ids(route) # todo rename
     params = ParamParser(request)
     with APP_CONFIG.db.managed_session(timeout=10) as session:
         ret_val = Routes.routes_factory(session, params.get_date())
-    return ret_val
+
 
 
 @view_config(route_name='ti_route_patterns', renderer='json', http_cache=globals.CACHE_LONG)
 def route_patterns(request):
     """
+    https://trimet-otp.conveyal.com/otp/routers/default/index/routes/TriMet:18/patterns
+
+
+    Here's the sequence of calls to OTP for this stuff:
     https://trimet-otp.conveyal.com/otp/routers/default/index/routes/TriMet:18
     https://trimet-otp.conveyal.com/otp/routers/default/index/routes/TriMet:18/patterns
     https://trimet-otp.conveyal.com/otp/routers/default/index/patterns/TriMet:18:0:02/geometry
