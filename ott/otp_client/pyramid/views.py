@@ -30,7 +30,9 @@ def set_app_config(app_cfg):
 
 def do_view_config(cfg):
     cfg.add_route('plan_trip', '/plan_trip')
-    cfg.add_route('ti_routes', '/ti/routes')
+    cfg.add_route('ti_route_list', '/ti/routes')
+    cfg.add_route('ti_route', '/ti/routes/{route}')
+    cfg.add_route('ti_route_patterns', '/ti/routes/{route}/patterns')
     cfg.add_route('ti_stop', '/ti/stops/{stop}')
     cfg.add_route('ti_nearest_stops', '/ti/stops')
     cfg.add_route('ti_stop_routes', '/ti/stops/{stop}/routes')
@@ -101,12 +103,40 @@ def stop_routes(request):
     return ret_val
 
 
-@view_config(route_name='ti_routes', renderer='json', http_cache=globals.CACHE_LONG)
-def routes(request):
+@view_config(route_name='ti_routes_list', renderer='json', http_cache=globals.CACHE_LONG)
+def routes_list(request):
+    """  """
     params = ParamParser(request)
     with APP_CONFIG.db.managed_session(timeout=10) as session:
         ret_val = Routes.routes_factory(session, params.get_date())
     return ret_val
+
+
+@view_config(route_name='ti_route', renderer='json', http_cache=globals.CACHE_LONG)
+def route(request):
+    """
+    https://trimet-otp.conveyal.com/otp/routers/default/index/routes/TriMet:18
+https://trimet-otp.conveyal.com/otp/routers/default/index/routes/TriMet:18/patterns
+https://trimet-otp.conveyal.com/otp/routers/default/index/patterns/TriMet:18:0:02/geometry
+https://trimet-otp.conveyal.com/otp/routers/default/index/patterns/TriMet:18:0:01/geometry
+    """
+    route = request.matchdict['route']
+    agency_id, route_id = otp_utils.get_agency_stop_ids(route) # todo rename
+    params = ParamParser(request)
+    with APP_CONFIG.db.managed_session(timeout=10) as session:
+        ret_val = Routes.routes_factory(session, params.get_date())
+    return ret_val
+
+
+@view_config(route_name='ti_route_patterns', renderer='json', http_cache=globals.CACHE_LONG)
+def route_patterns(request):
+    """
+    https://trimet-otp.conveyal.com/otp/routers/default/index/routes/TriMet:18
+    https://trimet-otp.conveyal.com/otp/routers/default/index/routes/TriMet:18/patterns
+    https://trimet-otp.conveyal.com/otp/routers/default/index/patterns/TriMet:18:0:02/geometry
+    """
+    route = request.matchdict['route']
+    agency_id, route_id = otp_utils.get_agency_stop_ids(route) # todo rename
 
 
 @view_config(route_name='plan_trip', renderer='json', http_cache=globals.CACHE_SHORT)
