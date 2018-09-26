@@ -106,10 +106,9 @@ def stop_routes(request):
     return ret_val
 
 
-@view_config(route_name='ti_routes_list', renderer='json', http_cache=globals.CACHE_LONG)
-def routes_list(request):
+@view_config(route_name='ti_route_list', renderer='json', http_cache=globals.CACHE_LONG)
+def route_list(request):
     """
-
     """
     params = ParamParser(request)
     with APP_CONFIG.db.managed_session(timeout=10) as session:
