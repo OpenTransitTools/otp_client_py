@@ -109,6 +109,11 @@ class Routes(Base):
         from gtfsdb import Route
         r = session.query(Route).filter(Route.route_id == route_id).one()
         route = cls._route_from_gtfsdb(r, agency_id)
+
+        class Agency(Base):
+            x = 1
+        route.agency = Agency().__dict__
+
         ret_val = route.__dict__
         return ret_val
 
