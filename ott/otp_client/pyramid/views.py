@@ -10,6 +10,7 @@ from ott.utils.parse.url.param_parser import ParamParser
 from ott.utils.parse.url.geo_param_parser import GeoParamParser
 
 from ott.utils import otp_utils
+from ott.utils import json_utils
 
 from ott.utils.svr.pyramid import response_utils
 from ott.utils.svr.pyramid import globals
@@ -140,8 +141,9 @@ def route(request):
 @view_config(route_name='ti_route_patterns', renderer='json', http_cache=globals.CACHE_LONG)
 def route_patterns(request):
     """
-    https://trimet-otp.conveyal.com/otp/routers/default/index/routes/TriMet:18/patterns
+    Will proxy calls to OTP transit index
 
+    https://trimet-otp.conveyal.com/otp/routers/default/index/routes/TriMet:18/patterns
 
     Here's the sequence of calls to OTP for this stuff:
     https://trimet-otp.conveyal.com/otp/routers/default/index/routes/TriMet:18
@@ -149,7 +151,9 @@ def route_patterns(request):
     https://trimet-otp.conveyal.com/otp/routers/default/index/patterns/TriMet:18:0:02/geometry
     """
     route = request.matchdict['route']
-    agency_id, route_id = otp_utils.breakout_agency_id(route) # todo rename
+    ti_url = "{}/index/routes/{}/patterns".format(get_otp_url(), route)
+    ret_val = json_utils.proxy_json(ti_url)
+    return ret_val
 
 
 @view_config(route_name='plan_trip', renderer='json', http_cache=globals.CACHE_SHORT)
@@ -166,14 +170,20 @@ def plan_trip(request):
     return ret_val
 
 
+def get_otp_url():
+    if getattr(APP_CONFIG, 'otp_url', None) is None:
+        APP_CONFIG.otp_url = APP_CONFIG.ini_settings.get('otp_url')
+    return APP_CONFIG.otp_url
+
+
 def get_planner():
     """ cache's up TripPlanner object (stores it in our APP_CONFIG) """
     # import pdb; pdb.set_trace()
     if getattr(APP_CONFIG, 'trip_planner', None) is None:
-        otp_url = APP_CONFIG.ini_settings.get('otp_url')
+        planner_url = get_otp_url() + '/plan' # todo ... url append method available?
         advert_url = APP_CONFIG.ini_settings.get('advert_url')
         fare_url = APP_CONFIG.ini_settings.get('fare_url')
         cancelled_url = APP_CONFIG.ini_settings.get('cancelled_routes_url')
         solr = GeoSolr(APP_CONFIG.ini_settings.get('solr_url'))
-        APP_CONFIG.trip_planner = TripPlanner(otp_url=otp_url, solr=solr, adverts=advert_url, fares=fare_url, cancelled_routes=cancelled_url)
+        APP_CONFIG.trip_planner = TripPlanner(otp_url=planner_url, solr=solr, adverts=advert_url, fares=fare_url, cancelled_routes=cancelled_url)
     return APP_CONFIG.trip_planner
