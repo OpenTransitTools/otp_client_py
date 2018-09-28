@@ -1,5 +1,6 @@
 from ott.utils import object_utils
 from ott.utils import otp_utils
+from ott.utils import json_utils
 
 from .base import Base
 
@@ -110,9 +111,32 @@ class Routes(Base):
         r = session.query(Route).filter(Route.route_id == route_id).one()
         route = cls._route_from_gtfsdb(r, agency_id)
 
-        class Agency(Base):
-            x = 1
-        route.agency = Agency().__dict__
+        class Agency():
+            @classmethod
+            def from_gtfsdb_factory(cls, agency):
+                """
+                {
+                  'agency_id': u'TRIMET'
+                  'agency_name': u'TriMet'
+                  'agency_url': u'http://trimet.org/'
+                  'agency_fare_url': u'http://trimet.org/fares/',
+                  'agency_timezone': u'America/Los_Angeles',
+                  'agency_lang': u'en',
+                  'agency_email': u'customerservice@trimet.org'
+                }
+                """
+                #import pdb; pdb.set_trace()
+                a = Agency()
+                a.id = agency.agency_id
+                a.name = agency.agency_name
+                a.url = agency.agency_url
+                a.fareUrl = agency.agency_fare_url
+                a.timezone = agency.agency_timezone
+                a.lang = agency.agency_lang
+                a.phone = agency.agency_phone
+                return a
+
+        route.agency = Agency().from_gtfsdb_factory(r.agency).__dict__
 
         ret_val = route.__dict__
         return ret_val
@@ -129,7 +153,6 @@ class Routes(Base):
     @classmethod
     def _route_from_gtfsdb(cls, r, agency_id=None):
         """ factory to genereate a Route obj from a queried gtfsdb route """
-        #import pdb; pdb.set_trace()
         agency = agency_id if agency_id else r.agency_id
         otp_route_id = otp_utils.make_otp_id(r.route_id, agency)
         cfg = {
