@@ -108,36 +108,11 @@ class Routes(Base):
         }
         """
         from gtfsdb import Route
+        from .agency import Agency
         r = session.query(Route).filter(Route.route_id == route_id).one()
+        agency = Agency().from_gtfsdb_factory(r.agency)
         route = cls._route_from_gtfsdb(r, agency_id)
-
-        class Agency():
-            @classmethod
-            def from_gtfsdb_factory(cls, agency):
-                """
-                {
-                  'agency_id': u'TRIMET'
-                  'agency_name': u'TriMet'
-                  'agency_url': u'http://trimet.org/'
-                  'agency_fare_url': u'http://trimet.org/fares/',
-                  'agency_timezone': u'America/Los_Angeles',
-                  'agency_lang': u'en',
-                  'agency_email': u'customerservice@trimet.org'
-                }
-                """
-                #import pdb; pdb.set_trace()
-                a = Agency()
-                a.id = agency.agency_id
-                a.name = agency.agency_name
-                a.url = agency.agency_url
-                a.fareUrl = agency.agency_fare_url
-                a.timezone = agency.agency_timezone
-                a.lang = agency.agency_lang
-                a.phone = agency.agency_phone
-                return a
-
-        route.agency = Agency().from_gtfsdb_factory(r.agency).__dict__
-
+        route.agency = agency.__dict__
         ret_val = route.__dict__
         return ret_val
 
