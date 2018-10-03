@@ -114,8 +114,9 @@ def route_list(request):
     """
     ret_val = []
     params = ParamParser(request)
+    agency_id = APP_CONFIG.get_agency(params)
     with APP_CONFIG.db.managed_session(timeout=10) as session:
-        ret_val = Routes.route_list_factory(session, params.get_date())
+        ret_val = Routes.route_list_factory(session, params.get_date(), agency_id)
     return ret_val
 
 
@@ -125,7 +126,7 @@ def route(request):
     https://trimet-otp.conveyal.com/otp/routers/default/index/routes/TriMet:18
     """
     route = request.matchdict['route']
-    agency_id, route_id = otp_utils.breakout_agency_id(route) # todo rename
+    agency_id, route_id = otp_utils.breakout_agency_id(route)  # todo rename
     if agency_id is None:
         params = ParamParser(request)
         agency_id = APP_CONFIG.get_agency(params)
