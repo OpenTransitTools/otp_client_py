@@ -41,7 +41,6 @@ class Stops(Base):
       }
     ]
 
-
     Stop call https://<domain & port>/otp/routers/default/index/stops/<agency>:<stop_id>
     {
         "id": "TriMet:9354",
@@ -57,7 +56,6 @@ class Stops(Base):
         "vehicleType": -999,
         "vehicleTypeSet": false
     }
-
 
     FYI, there's also a new OTP TI P&R service:
     https://trimet-otp.conveyal.com/otp/routers/default/park_and_ride
@@ -78,8 +76,9 @@ class Stops(Base):
 
         object_utils.safe_set_from_dict(self, 'zoneId', args, always_cpy=False)
         object_utils.safe_set_from_dict(self, 'routes', args, always_cpy=False)  # todo
-        object_utils.safe_set_from_dict(self, 'mode', args, always_cpy=False) # change to vehicleType??
+        object_utils.safe_set_from_dict(self, 'mode', args, always_cpy=False)  # change to vehicleType??
         object_utils.safe_set_from_dict(self, 'locationType', args, always_cpy=False)
+        object_utils.safe_set_from_dict(self, 'amenities', args, always_cpy=False)
         object_utils.safe_set_from_dict(self, 'vehicleType', args, def_val=-999, always_cpy=False)
         object_utils.safe_set_from_dict(self, 'vehicleTypeSet', args, def_val=False, always_cpy=False)
 
@@ -144,6 +143,7 @@ class Stops(Base):
         location_type = s.location_type
         agency_name = agency_id
         route_short_names = None
+        amenities = None
 
         # step 1: get mode and agency id (if needed)
         if detailed and s.routes and len(s.routes) > 0:
@@ -174,8 +174,9 @@ class Stops(Base):
             'lat': float(s.stop_lat), 'lon': float(s.stop_lon),
             'url': getattr(s, 'stop_url', None),
             'mode': mode,
+            'routes': route_short_names,
             'locationType': location_type,
-            'routes': route_short_names
+            'amenities': amenities
         }
         if point:
             # todo ... have the dist come from PostGIS (Duh!)
