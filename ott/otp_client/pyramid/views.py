@@ -87,7 +87,7 @@ def stop(request):
     if agency_id is None:
         agency_id = APP_CONFIG.get_agency(request)
     with APP_CONFIG.db.managed_session(timeout=10) as session:
-        s = Stops.stop(session, stop_id, agency_id)
+        s = Stops.stop(session, stop_id, agency_id, detailed=True)
         if s:
             ret_val = s.__dict__
     return ret_val

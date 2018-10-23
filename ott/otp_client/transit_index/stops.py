@@ -149,7 +149,7 @@ class Stops(Base):
         if detailed and s.routes and len(s.routes) > 0:
             for r in s.routes:
                 # step 1a: get agency and mode vars
-                if r.agency_id:
+                if agency_id is None and r.agency_id:
                     agency_id = r.agency_id
                 if r.agency.agency_name:
                     agency_name = r.agency.agency_name
@@ -164,6 +164,7 @@ class Stops(Base):
         if detailed:
             from ott.data.dao.stop_dao import StopDao
             route_short_names = StopDao.make_short_names(s)  # note: this will probably be very expensive
+            amenities = s.amenities
 
         # step 3: build the stop
         otp_stop_id = otp_utils.make_otp_id(s.stop_id, agency_id)
