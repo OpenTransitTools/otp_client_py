@@ -26,13 +26,6 @@ extras_require = dict(
     dev=[],
 )
 
-#
-# eggs that you need if you're running a version of python lower than 2.7
-#
-if sys.version_info[:2] < (2, 7):
-    requires.extend(['argparse>=1.2.1', 'unittest2>=0.5.1'])
-
-
 setup(
     name='ott.otp_client',
     version='0.1.0',
