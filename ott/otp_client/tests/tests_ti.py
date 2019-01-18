@@ -1,8 +1,7 @@
 import os
 import unittest
 
-from ott.data.dao.route_dao import CurrentRoutesListDao
-from ott.data.dao.stop_dao import CurrentStopsListDao
+from ott.otp_client.transit_index.routes import Routes
 
 
 DB = None
@@ -10,7 +9,7 @@ def get_db():
     from gtfsdb import api
     from ott.utils import file_utils
     from gtfsdb import util
-    dir = file_utils.get_module_dir(CurrentRoutesListDao)
+    dir = file_utils.get_module_dir(Routes)
     gtfs_file = os.path.join(dir, '..', 'tests', 'multi-date-feed.zip')
     gtfs_file = gtfs_file.replace('c:\\', '/').replace('\\', '/')
     gtfs_file = "file://{0}".format(gtfs_file)
@@ -21,7 +20,7 @@ def get_db():
     return db
 
 
-class TestStuff(unittest.TestCase):
+class TiTest(unittest.TestCase):
     db = None
 
     def setUp(self):
@@ -33,8 +32,8 @@ class TestStuff(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_current_routes(self):
-        dao = CurrentRoutesListDao.route_list(self.db.session)
+    def test_all_routes(self):
+        dao = Routes.route_list_factory(self.db.session)
         for r in dao.routes:
             print(r)
 
@@ -42,11 +41,5 @@ class TestStuff(unittest.TestCase):
         self.assertTrue(dao.routes[0].route_id in ('NEW', 'ALWAYS'))
         self.assertTrue(dao.routes[1].route_id in ('NEW', 'ALWAYS'))
 
-    def test_current_stops(self):
-        dao = CurrentStopsListDao.all_stops(self.db.session)
-        for s in dao.stops:
-            print(s)
-
-        self.assertTrue(len(dao.stops) == 7)
-        #self.assertTrue(dao.routes[0].route_id in ('NEW', 'ALWAYS'))
-        #self.assertTrue(dao.routes[1].route_id in ('NEW', 'ALWAYS'))
+    def test_bbox_stops(self):
+        pass
