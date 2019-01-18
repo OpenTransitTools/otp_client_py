@@ -62,10 +62,14 @@ class Routes(Base):
         """
         :return a list of all route(s) serving a given stop
         """
-        from ott.data.dao.stop_dao import StopDao
-        from ott.data.dao.route_dao import RouteListDao
-        s = StopDao.query_orm_for_stop(session, stop_id, detailed=False) # detailed here will bring amenities
-        routes = RouteListDao.filter_active_routes(s.routes, date=date)
+        if date:
+            from gtfsdb import Stop
+            from ott.data.dao.route_dao import RouteListDao
+            s = Stop.query_orm_for_stop(session, stop_id, detailed=False) # detailed here will bring amenities
+            routes = RouteListDao.filter_active_routes(s.routes, date=date)
+        else:
+            from gtfsdb import CurrentStops
+
         ret_val = cls._route_list_from_gtfsdb_list(routes, agency_id)
         return ret_val
 
@@ -73,13 +77,17 @@ class Routes(Base):
     def route_list_factory(cls, session, date=None, agency_id=None):
         """
         :return a list of all route(s) for a given agency
+        :note supplying a 'date' object will be *slower*, as it won't use the pre-calculated CurrentRoutes table
         """
-        # from ott.data.dao.route_dao import RouteListDao
-        # dao = RouteListDao.route_list(session, agency_id)
-        from ott.data.dao.route_dao import CurrentRoutesListDao
-        dao = CurrentRoutesListDao.route_list(session, agency_id)
-        #ret_val = dao.routes
-        ret_val = cls._route_list_from_gtfsdb_list(dao.routes, agency_id)
+        # import pdb; pdb.set_trace()
+        if date:
+            #
+            from gtfsdb import Route
+            routes = Route.active_routes(session, date)
+        else:
+            from gtfsdb import CurrentRoutes
+            routes = CurrentRoutes.active_routes(session)
+        ret_val = cls._route_list_from_gtfsdb_orm_list(routes, agency_id)
         return ret_val
 
     @classmethod
@@ -115,24 +123,23 @@ class Routes(Base):
         from .agency import Agency
         r = session.query(Route).filter(Route.route_id == route_id).one()
         agency = Agency().from_gtfsdb_factory(r.agency)
-        route = cls._route_from_gtfsdb(r, agency_id)
+        route = cls._route_from_gtfsdb_orm(r, agency_id)
         route.agency = agency.__dict__
         ret_val = route.__dict__
         return ret_val
 
     @classmethod
-    def _route_list_from_gtfsdb_list(cls, gtfsdb_route_list, agency_id=None):
+    def _route_list_from_gtfsdb_orm_list(cls, gtfsdb_route_list, agency_id=None):
         """ input gtfsdb list, output Route obj list """
         ret_val = []
         for r in gtfsdb_route_list:
-            route = cls._route_from_gtfsdb(r, agency_id)
+            route = cls._route_from_gtfsdb_orm(r, agency_id)
             ret_val.append(route.__dict__)
         return ret_val
 
     @classmethod
-    def _route_from_gtfsdb(cls, r, agency_id=None):
+    def _route_from_gtfsdb_orm(cls, r, agency_id=None):
         """ factory to genereate a Route obj from a queried gtfsdb route """
-        import pdb; pdb.set_trace()
         agency = agency_id if agency_id else r.agency_id
         otp_route_id = otp_utils.make_otp_id(r.route_id, agency)
         cfg = {
