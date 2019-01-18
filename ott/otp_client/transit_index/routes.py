@@ -74,8 +74,12 @@ class Routes(Base):
         """
         :return a list of all route(s) for a given agency
         """
-        from ott.data.dao.route_dao import RouteListDao
-        ret_val = RouteListDao.route_list(session, agency_id)
+        # from ott.data.dao.route_dao import RouteListDao
+        # dao = RouteListDao.route_list(session, agency_id)
+        from ott.data.dao.route_dao import CurrentRoutesListDao
+        dao = CurrentRoutesListDao.route_list(session, agency_id)
+        #ret_val = dao.routes
+        ret_val = cls._route_list_from_gtfsdb_list(dao.routes, agency_id)
         return ret_val
 
     @classmethod
@@ -128,6 +132,7 @@ class Routes(Base):
     @classmethod
     def _route_from_gtfsdb(cls, r, agency_id=None):
         """ factory to genereate a Route obj from a queried gtfsdb route """
+        import pdb; pdb.set_trace()
         agency = agency_id if agency_id else r.agency_id
         otp_route_id = otp_utils.make_otp_id(r.route_id, agency)
         cfg = {
@@ -139,7 +144,6 @@ class Routes(Base):
         }
         ret_val = Routes(cfg)
         return ret_val
-
 
     @classmethod
     def mock(cls, agency_id="MOCK"):
