@@ -10,7 +10,7 @@ def get_db():
     from ott.utils import file_utils
     from gtfsdb import util
     dir = file_utils.get_module_dir(Routes)
-    gtfs_file = os.path.join(dir, '..', 'tests', 'multi-date-feed.zip')
+    gtfs_file = os.path.join(dir, '..', 'tests', 'data', 'gtfs', 'multi-date-feed.zip')
     gtfs_file = gtfs_file.replace('c:\\', '/').replace('\\', '/')
     gtfs_file = "file://{0}".format(gtfs_file)
     gtfs_file = gtfs_file.replace('\\', '/')
@@ -33,6 +33,8 @@ class TiTest(unittest.TestCase):
         pass
 
     def test_all_routes(self):
+        # import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         dao = Routes.route_list_factory(self.db.session)
         for r in dao.routes:
             print(r)

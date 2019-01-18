@@ -75,8 +75,7 @@ class Routes(Base):
         :return a list of all route(s) for a given agency
         """
         from ott.data.dao.route_dao import RouteListDao
-        routes = RouteListDao.active_routes(session, date=date)
-        ret_val = cls._route_list_from_gtfsdb_list(routes, agency_id)
+        ret_val = RouteListDao.route_list(session, agency_id)
         return ret_val
 
     @classmethod
