@@ -156,7 +156,7 @@ class Routes(Base):
             color = "Ox{:02}{:02}{:02}".format(i+3, i*2, i+17)
             mode = "TRAM" if i % 3 else "BUS"
 
-            otp_route_id = otp_utils.make_otp_route_id(route_id, agency_id)
+            otp_route_id = otp_utils.make_otp_id(route_id, agency_id)
             cfg = {'agencyName': agency_name, 'id': otp_route_id,
                    'shortName': short_name, 'longName': long_name,
                    'mode': mode, 'color': color, 'sortOrder': i+1}
