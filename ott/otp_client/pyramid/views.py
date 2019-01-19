@@ -96,6 +96,8 @@ def stop(request):
 @view_config(route_name='ti_stop_routes', renderer='json', http_cache=globals.CACHE_LONG)
 def stop_routes(request):
     """
+    :return list of routes serving a stop
+    http://localhost:54445/stops/2/routes
     """
     ret_val = []
     params = ParamParser(request)
@@ -111,8 +113,9 @@ def stop_routes(request):
 @view_config(route_name='ti_route_list', renderer='json', http_cache=globals.CACHE_LONG)
 def route_list(request):
     """
+    :return list of routes
+    http://localhost:54445/ti/routes
     """
-    ret_val = []
     params = ParamParser(request)
     agency_id = APP_CONFIG.get_agency(params)
     with APP_CONFIG.db.managed_session(timeout=10) as session:
@@ -123,6 +126,8 @@ def route_list(request):
 @view_config(route_name='ti_route', renderer='json', http_cache=globals.CACHE_LONG)
 def route(request):
     """
+    :return single route
+    http://localhost:54445/ti/routes/TriMet:18
     https://trimet-otp.conveyal.com/otp/routers/default/index/routes/TriMet:18
     """
     route = request.matchdict['route']
@@ -131,7 +136,6 @@ def route(request):
         params = ParamParser(request)
         agency_id = APP_CONFIG.get_agency(params)
 
-    ret_val = []
     with APP_CONFIG.db.managed_session(timeout=10) as session:
         ret_val = Routes.route_factory(session, route_id, agency_id)
 

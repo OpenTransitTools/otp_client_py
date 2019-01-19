@@ -61,16 +61,20 @@ class Routes(Base):
     def stop_routes_factory(cls, session, stop_id, date=None, agency_id=None):
         """
         :return a list of all route(s) serving a given stop
+
+        http://localhost:54445/ti/routes
+
         """
+        # import pdb; pdb.set_trace()
         if date:
-            from gtfsdb import Stop
+            from gtfsdb import Stop, Route
             from ott.data.dao.route_dao import RouteListDao
             s = Stop.query_orm_for_stop(session, stop_id, detailed=False) # detailed here will bring amenities
-            routes = RouteListDao.filter_active_routes(s.routes, date=date)
+            routes = Route.filter_active_routes(s.routes, date=date)
         else:
             from gtfsdb import CurrentStops
 
-        ret_val = cls._route_list_from_gtfsdb_list(routes, agency_id)
+        ret_val = cls._route_list_from_gtfsdb_orm_list(routes, agency_id)
         return ret_val
 
     @classmethod
@@ -78,6 +82,10 @@ class Routes(Base):
         """
         :return a list of all route(s) for a given agency
         :note supplying a 'date' object will be *slower*, as it won't use the pre-calculated CurrentRoutes table
+
+        http://localhost:54445/ti/routes
+        http://localhost:54445/ti/routes?date=3-3-2019
+
         """
         # import pdb; pdb.set_trace()
         if date:
@@ -95,8 +103,8 @@ class Routes(Base):
         """
         factory to generate a Route obj from a queried gtfsdb route
 
-        FYI, this is what that stupid OTP TI returns
-        https://trimet-otp.conveyal.com/otp/routers/default/index/routes/TriMet:18
+        http://localhost:54445/ti/routes/TriMet:1
+
         {
             "id": "TriMet:18",
             "agency": {
