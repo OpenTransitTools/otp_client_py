@@ -66,16 +66,19 @@ class Routes(Base):
 
         """
         #import pdb; pdb.set_trace()
+        routes = []
         if date:
             from gtfsdb import Stop, Route
             s = Stop.query_orm_for_stop(session, stop_id, detailed=False)
-            routes = Route.filter_active_routes(s.routes, date=date)
+            if s and s.routes:
+                routes = Route.filter_active_routes(s.routes, date=date)
         else:
             from gtfsdb import CurrentStops, CurrentRoutes
             from gtfsdb import Route
             # TODO -- how to use current stops to get current routes ??? currently querying trips ... too slow
             s = CurrentStops.query_orm_for_stop(session, stop_id, detailed=False)
-            routes = Route.filter_active_routes(s.stop.routes, date=date)
+            if s and s.stop and s.stop.routes:
+                routes = Route.filter_active_routes(s.stop.routes, date=date)
 
         ret_val = cls._route_list_from_gtfsdb_orm_list(routes, agency_id)
         return ret_val

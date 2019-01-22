@@ -33,26 +33,35 @@ class TiTest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_current_routes(self):
+    def test_routes(self):
+        # test current routes
         routes = Routes.route_list_factory(self.db.session)
-        #import pdb; pdb.set_trace()
-        #for r in routes: print(r)
-
         self.assertTrue(len(routes) == 2)
         self.assertTrue(routes[0].get('id') in ('DTA:NEW', 'DTA:ALWAYS'))
         self.assertTrue(routes[1].get('id') in ('DTA:NEW', 'DTA:ALWAYS'))
 
-    def test_old_routes(self):
-        routes = Routes.route_list_factory(self.db.session, date="9-15-2018")
+        # test query of routes via date (slower)
         #import pdb; pdb.set_trace()
-        #for r in routes: print(r)
-
+        routes = Routes.route_list_factory(self.db.session, date="9-15-2018")
+        # for r in routes: print(r)
         self.assertTrue(len(routes) == 2)
         self.assertTrue(routes[0].get('id') in ('DTA:OLD', 'DTA:ALWAYS'))
         self.assertTrue(routes[1].get('id') in ('DTA:OLD', 'DTA:ALWAYS'))
 
+    def test_stop_routes(self):
+        routes = Routes.stop_routes_factory(self.db.session, 'DADAN')
+        self.assertTrue(len(routes) == 2)
+        self.assertTrue(routes[0].get('id') in ('DTA:NEW', 'DTA:ALWAYS'))
+        self.assertTrue(routes[1].get('id') in ('DTA:NEW', 'DTA:ALWAYS'))
+
+        routes = Routes.stop_routes_factory(self.db.session, 'OLD', date="9-15-2018")
+        self.assertTrue(len(routes) == 1)
+
+        routes = Routes.stop_routes_factory(self.db.session, 'OLD')
+        self.assertTrue(len(routes) == 0)
+
     def test_bbox_stops(self):
-        #stops = Stops.stop()
+        pass
+        # stops = Stops.stop()
         #import pdb; pdb.set_trace()
         #for r in routes: print(r)
-
