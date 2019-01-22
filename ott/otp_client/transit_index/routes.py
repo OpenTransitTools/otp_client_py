@@ -131,14 +131,19 @@ class Routes(Base):
             "sortOrderSet": true
         }
         """
-        # import pdb; pdb.set_trace()
-        from gtfsdb import Route
-        from .agency import Agency
-        r = session.query(Route).filter(Route.route_id == route_id).one()
-        agency = Agency().from_gtfsdb_factory(r.agency)
-        route = cls._route_from_gtfsdb_orm(r, agency_id)
-        route.agency = agency.__dict__
-        ret_val = route.__dict__
+        ret_val = None
+        try:
+            from gtfsdb import Route
+            from .agency import Agency
+            # import pdb; pdb.set_trace()
+            #routes = session.query(Route); for r in routes: print(r.__dict__)
+            r = session.query(Route).filter(Route.route_id == route_id).one()
+            agency = Agency().from_gtfsdb_factory(r.agency)
+            route = cls._route_from_gtfsdb_orm(r, agency_id)
+            route.agency = agency.__dict__
+            ret_val = route.__dict__
+        except Exception as e:
+            log.warning(e)
         return ret_val
 
     @classmethod

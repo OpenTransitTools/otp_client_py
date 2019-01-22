@@ -33,7 +33,18 @@ class TiTest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_routes(self):
+    def test_route(self):
+        # test current routes
+        route = Routes.route_factory(self.db.session, 'NEW')
+        self.assertTrue(route.get('id') == 'DTA:NEW')
+
+        route = Routes.route_factory(self.db.session, 'OLD')
+        self.assertTrue(route.get('id') == 'DTA:OLD')
+
+        route = Routes.route_factory(self.db.session, 'ALWAYS')
+        self.assertTrue(route.get('id') == 'DTA:ALWAYS')
+
+    def test_routes_list(self):
         # test current routes
         routes = Routes.route_list_factory(self.db.session)
         self.assertTrue(len(routes) == 2)
