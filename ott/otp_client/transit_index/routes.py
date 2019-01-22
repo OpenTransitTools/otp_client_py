@@ -62,7 +62,7 @@ class Routes(Base):
         """
         :return a list of all route(s) serving a given stop
 
-        http://localhost:54445/ti/routes
+        http://localhost:54445/ti/stops/TriMet:2/routes
 
         """
         #import pdb; pdb.set_trace()
@@ -92,7 +92,6 @@ class Routes(Base):
         """
         # import pdb; pdb.set_trace()
         if date:
-            #
             from gtfsdb import Route
             routes = Route.active_routes(session, date)
         else:

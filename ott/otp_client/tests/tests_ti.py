@@ -2,6 +2,7 @@ import os
 import unittest
 
 from ott.otp_client.transit_index.routes import Routes
+from ott.otp_client.transit_index.stops import Stops
 
 
 DB = None
@@ -32,16 +33,26 @@ class TiTest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_all_routes(self):
-        # import pdb; pdb.set_trace()
-        # import pdb; pdb.set_trace()
-        dao = Routes.route_list_factory(self.db.session)
-        for r in dao.routes:
-            print(r)
+    def test_current_routes(self):
+        routes = Routes.route_list_factory(self.db.session)
+        #import pdb; pdb.set_trace()
+        #for r in routes: print(r)
 
-        self.assertTrue(len(dao.routes) == 2)
-        self.assertTrue(dao.routes[0].route_id in ('NEW', 'ALWAYS'))
-        self.assertTrue(dao.routes[1].route_id in ('NEW', 'ALWAYS'))
+        self.assertTrue(len(routes) == 2)
+        self.assertTrue(routes[0].get('id') in ('DTA:NEW', 'DTA:ALWAYS'))
+        self.assertTrue(routes[1].get('id') in ('DTA:NEW', 'DTA:ALWAYS'))
+
+    def test_old_routes(self):
+        routes = Routes.route_list_factory(self.db.session, date="9-15-2018")
+        #import pdb; pdb.set_trace()
+        #for r in routes: print(r)
+
+        self.assertTrue(len(routes) == 2)
+        self.assertTrue(routes[0].get('id') in ('DTA:OLD', 'DTA:ALWAYS'))
+        self.assertTrue(routes[1].get('id') in ('DTA:OLD', 'DTA:ALWAYS'))
 
     def test_bbox_stops(self):
-        pass
+        #stops = Stops.stop()
+        #import pdb; pdb.set_trace()
+        #for r in routes: print(r)
+
