@@ -57,7 +57,7 @@ def nearest_stops(request):
     elif params.has_bbox():
         limit = params.get_first_val_as_int('limit', 1000)
         with APP_CONFIG.db.managed_session(timeout=10) as session:
-            ret_val = Stops.bbox_stops(session, params.bbox, agency_id, limit)
+            ret_val = Stops.bbox_stops(session, params.bbox.to_gtfsdb_bbox(), agency_id, limit)
     else:
         ret_val = []
     return ret_val
