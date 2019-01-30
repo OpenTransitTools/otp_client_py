@@ -1,4 +1,3 @@
-
 from ott.utils import object_utils
 
 import sys

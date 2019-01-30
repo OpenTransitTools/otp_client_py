@@ -1,6 +1,5 @@
 from ott.utils import object_utils
 from ott.utils import otp_utils
-from ott.utils import json_utils
 
 from .base import Base
 
@@ -99,7 +98,7 @@ class Routes(Base):
             routes = Route.active_routes(session, date)
         else:
             from gtfsdb import CurrentRoutes
-            routes = CurrentRoutes.active_routes(session)
+            routes = CurrentRoutes.query_active_routes(session)
         ret_val = cls._route_list_from_gtfsdb_orm_list(routes, agency_id)
         return ret_val
 
@@ -133,11 +132,9 @@ class Routes(Base):
         """
         ret_val = None
         try:
-            from gtfsdb import Route
             from .agency import Agency
-            # import pdb; pdb.set_trace()
-            #routes = session.query(Route); for r in routes: print(r.__dict__)
-            r = session.query(Route).filter(Route.route_id == route_id).one()
+            from gtfsdb import Route
+            r = Route.get_route(session, route_id)
             agency = Agency().from_gtfsdb_factory(r.agency)
             route = cls._route_from_gtfsdb_orm(r, agency_id)
             route.agency = agency.__dict__
@@ -175,7 +172,6 @@ class Routes(Base):
         """
         """
         ret_val = []
-
         for i in range(50):
             agency_name = agency_id
             route_id = str(i+1)
@@ -190,5 +186,4 @@ class Routes(Base):
                    'mode': mode, 'color': color, 'sortOrder': i+1}
             r = Routes(cfg)
             ret_val.append(r.__dict__)
-
         return ret_val

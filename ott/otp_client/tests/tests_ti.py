@@ -5,11 +5,9 @@ from ott.otp_client.transit_index.routes import Routes
 from ott.otp_client.transit_index.stops import Stops
 
 
-DB = None
 def get_db():
-    from gtfsdb import api
+    from gtfsdb import api, util
     from ott.utils import file_utils
-    from gtfsdb import util
     dir = file_utils.get_module_dir(Routes)
     gtfs_file = os.path.join(dir, '..', 'tests', 'data', 'gtfs', 'multi-date-feed.zip')
     gtfs_file = gtfs_file.replace('c:\\', '/').replace('\\', '/')
@@ -25,13 +23,9 @@ class TiTest(unittest.TestCase):
     db = None
 
     def setUp(self):
-        global DB
-        if DB is None:
-            DB = get_db()
-        self.db = DB
-
-    def tearDown(self):
-        pass
+        if TiTest.db is None:
+            self.db = get_db()
+            TiTest.db = self.db
 
     def test_route(self):
         # test current routes
