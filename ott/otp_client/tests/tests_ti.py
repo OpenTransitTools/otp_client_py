@@ -71,9 +71,18 @@ class TiTest(unittest.TestCase):
         routes = Routes.stop_routes_factory(self.db.session, 'OLD')
         self.assertTrue(len(routes) == 0)
 
+    def test_stop_query(self):
+        stop = Stops.stop(self.db.session, 'NEW')
+        self.assertTrue(stop)
+        self.assertTrue(stop.routes == '50')
+
+        stop = Stops.stop(self.db.session, 'OLD', def_val=None)
+        self.assertTrue(stop == None)
+
     def test_bbox_stops(self):
-        # TODO !!!
+        # import pdb; pdb.set_trace()
         pass
-        # stops = Stops.stop()
-        #import pdb; pdb.set_trace()
-        #for r in routes: print(r)
+
+    def test_point_stops(self):
+        pass
+
