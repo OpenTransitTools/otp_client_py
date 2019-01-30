@@ -9,38 +9,16 @@ log = logging.getLogger(__file__)
 
 class Routes(Base):
     """
-    ROUTE LIST:
-    https://<domain & port>/otp/routers/default/index/routes
-    [
-        {
-            "id": "TriMet:54",
-            "agencyName": "TriMet",
-            "shortName": "54",
-            "longName": "Beaverton-Hillsdale Hwy",
-            "mode": "BUS"
-        },
-        {
+    OpenTripPlanner's (OTP's) Transit Index (TI) is a GET web service that will return route, stop and schedule data from
+    the OTP graph. The problem is that the TI cannot deal with date-based GTFS data.  Further, I would (strongly) argue
+    that the TI is way out of OTP's scope architecturally.
 
-            "id": "TriMet:193",
-            "longName": "Portland Streetcar - NS Line",
-            "mode": "TRAM" or "GONDOLA" or "RAIL" or ...
-            "color": "84BD00",
-            "agencyName": "Portland Streetcar"
+    This call provides the route query services from gtfsdb as an alternate to OTP.
 
-        }
-    ]
-
-    STOP's ROUTES:
-    https://<domain & port>/otp/routers/default/index/stops/TriMet:5516/routes
-    [
-      {
-        "id": "TriMet:10",
-        "shortName": "10",
-        "longName": "Harold St",
-        "mode": "BUS",
-        "agencyName": "TriMet"
-      }
-    ]
+    The Routes class will deal with the following TI services:
+      - ALL ROUTES   - https://<domain & port>/otp/routers/default/index/routes
+      - SINGLE ROUTE - https://<domain & port>/otp/routers/default/index/route/<route_id>
+      - STOP's ROUTE - https://<domain & port>/otp/routers/default/index/stops/TriMet:<route_id>/routes
     """
     def __init__(self, args={}):
         super(Routes, self).__init__(args)
@@ -63,9 +41,21 @@ class Routes(Base):
 
         http://localhost:54445/ti/stops/TriMet:2/routes
 
+        STOP's ROUTES RESPONSE:
+        [
+          {
+            "id": "TriMet:10",
+            "shortName": "10",
+            "longName": "Harold St",
+            "mode": "BUS",
+            "agencyName": "TriMet"
+          }
+        ]
         """
-        #import pdb; pdb.set_trace()
         routes = []
+
+        # import pdb; pdb.set_trace()
+        # TODO - get rid of the date, and implement that over in gtfsdb
         if date:
             from gtfsdb import Stop, Route
             s = Stop.query_orm_for_stop(session, stop_id, detailed=False)
@@ -91,14 +81,27 @@ class Routes(Base):
         http://localhost:54445/ti/routes
         http://localhost:54445/ti/routes?date=3-3-2019
 
+        ROUTE LIST RESPONSE:
+        https://<domain & port>/otp/routers/default/index/routes
+        [
+            {
+                "id": "TriMet:54",
+                "agencyName": "TriMet",
+                "shortName": "54",
+                "longName": "Beaverton-Hillsdale Hwy",
+                "mode": "BUS"
+            },
+            {
+                "id": "TriMet:193",
+                "longName": "Portland Streetcar - NS Line",
+                "mode": "TRAM" or "GONDOLA" or "RAIL" or ...
+                "color": "84BD00",
+                "agencyName": "Portland Streetcar"
+            }
+        ]
         """
-        # import pdb; pdb.set_trace()
-        if date:
-            from gtfsdb import Route
-            routes = Route.active_routes(session, date)
-        else:
-            from gtfsdb import CurrentRoutes
-            routes = CurrentRoutes.query_active_routes(session)
+        from gtfsdb import CurrentRoutes
+        routes = CurrentRoutes.query_active_routes(session, date)
         ret_val = cls._route_list_from_gtfsdb_orm_list(routes, agency_id)
         return ret_val
 
@@ -107,8 +110,8 @@ class Routes(Base):
         """
         factory to generate a Route obj from a queried gtfsdb route
 
-        http://localhost:54445/ti/routes/TriMet:1
-
+        http://localhost:54445/ti/routes/TriMet:18
+        ROUTE RESPONSE (DETAILED)
         {
             "id": "TriMet:18",
             "agency": {
@@ -134,7 +137,7 @@ class Routes(Base):
         try:
             from .agency import Agency
             from gtfsdb import Route
-            r = Route.get_route(session, route_id)
+            r = Route.query_route(session, route_id)
             agency = Agency().from_gtfsdb_factory(r.agency)
             route = cls._route_from_gtfsdb_orm(r, agency_id)
             route.agency = agency.__dict__
