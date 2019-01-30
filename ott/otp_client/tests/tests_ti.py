@@ -3,28 +3,21 @@ import unittest
 
 from ott.otp_client.transit_index.routes import Routes
 from ott.otp_client.transit_index.stops import Stops
+from ott.utils.geo.bbox import BBox
+from ott.utils.geo.point import Point
 
-
-def get_db():
-    from gtfsdb import api, util
-    from ott.utils import file_utils
-    dir = file_utils.get_module_dir(Routes)
-    gtfs_file = os.path.join(dir, '..', 'tests', 'data', 'gtfs', 'multi-date-feed.zip')
-    gtfs_file = gtfs_file.replace('c:\\', '/').replace('\\', '/')
-    gtfs_file = "file://{0}".format(gtfs_file)
-    gtfs_file = gtfs_file.replace('\\', '/')
-
-    url = util.make_temp_sqlite_db_uri('curr')
-    db = api.database_load(gtfs_file, url=url, current_tables=True)
-    return db
+from .base import *
 
 
 class TiTest(unittest.TestCase):
     db = None
+    DO_PG = False
+    PG_URL = "postgresql://ott@localhost:5432/ott"
+    PG_SCHEMA = "current_test"
 
     def setUp(self):
         if TiTest.db is None:
-            self.db = get_db()
+            self.db = load_pgsql(self.PG_URL, self.PG_SCHEMA) if self.DO_PG else load_sqlite()
             TiTest.db = self.db
 
     def test_route(self):
@@ -80,9 +73,17 @@ class TiTest(unittest.TestCase):
         self.assertTrue(stop == None)
 
     def test_bbox_stops(self):
-        # import pdb; pdb.set_trace()
-        pass
+        if self.DO_PG:
+            import pdb; pdb.set_trace()
+            bbox = BBox(min_lat=36.0, max_lat=37.0, min_lon=-117.5, max_lon=-116.0)
+            stops = Stops.bbox_stops(self.db.session, bbox)
+            self.assertTrue(len(stops) > 5)
 
     def test_point_stops(self):
-        pass
+        if self.DO_PG:
+            stop = Stops.stop(self.db.session, 'NEW')
+            self.assertTrue(stop)
+            self.assertTrue(stop.routes == '50')
+
+
 
