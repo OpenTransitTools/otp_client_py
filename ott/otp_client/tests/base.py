@@ -1,26 +1,12 @@
-from gtfsdb.api import database_load
 from gtfsdb import util
+from gtfsdb.model.db import Database
+from gtfsdb.api import database_load
 
 from pkg_resources import resource_filename
 import os
 import logging
 log = logging.getLogger(__name__)
 
-"""
-def get_db():
-    from gtfsdb import api, util
-    from ott.utils import file_utils
-    dir = file_utils.get_module_dir(Routes)
-    gtfs_file = os.path.join(dir, '..', 'tests', 'data', 'gtfs', 'multi-date-feed.zip')
-    gtfs_file = gtfs_file.replace('c:\\', '/').replace('\\', '/')
-    gtfs_file = "file://{0}".format(gtfs_file)
-    gtfs_file = gtfs_file.replace('\\', '/')
-
-    url = util.make_temp_sqlite_db_uri('curr')
-    db = api.database_load(gtfs_file, url=url, current_tables=True)
-    return db
-
-"""
 
 def get_test_directory_path():
     """ will return current path ... tries to handle c:\\ windows junk """
@@ -65,6 +51,11 @@ def load_pgsql(url, schema="current_test"):
     gtfs_path = os.path.join('data', 'gtfs', 'multi-date-feed.zip')
     gtfs_file = get_test_file_uri(gtfs_path)
     db = database_load(gtfs_file, url=url, schema=schema, is_geospatial=True, current_tables=True)
+    return db
+
+
+def get_pg_db(url, schema='trimet'):
+    db = Database(url=url, schema=schema, is_geospatial=True, current_tables=True)
     return db
 
 

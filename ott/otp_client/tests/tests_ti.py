@@ -14,10 +14,17 @@ class TiTest(unittest.TestCase):
     DO_PG = False
     PG_URL = "postgresql://ott@localhost:5432/ott"
     PG_SCHEMA = "current_test"
+    PG_TM_SCHEMA = "trimet"  # == None if you don't have TriMet's GTFS loaded in the above db
 
     def setUp(self):
         if TiTest.db is None:
-            self.db = load_pgsql(self.PG_URL, self.PG_SCHEMA) if self.DO_PG else load_sqlite()
+            if self.DO_PG:
+                self.db = load_pgsql(self.PG_URL, self.PG_SCHEMA)
+                if self.PG_TM_SCHEMA:
+                    self.pgdb = get_pg_db(self.PG_URL, self.PG_TM_SCHEMA)
+            else:
+                self.db = load_sqlite()
+
             TiTest.db = self.db
 
     def test_route(self):
@@ -74,16 +81,27 @@ class TiTest(unittest.TestCase):
 
     def test_bbox_stops(self):
         if self.DO_PG:
-            import pdb; pdb.set_trace()
             bbox = BBox(min_lat=36.0, max_lat=37.0, min_lon=-117.5, max_lon=-116.0)
             stops = Stops.bbox_stops(self.db.session, bbox)
             self.assertTrue(len(stops) > 5)
 
+            if self.pgdb:
+                bbox = BBox(min_lat=45.530, max_lat=45.535, min_lon=-122.665, max_lon=-122.667)
+                stops = Stops.bbox_stops(self.pgdb.session, bbox)
+                self.assertTrue(len(stops) > 5)
+
     def test_point_stops(self):
+        # import pdb; pdb.set_trace()
         if self.DO_PG:
-            stop = Stops.stop(self.db.session, 'NEW')
-            self.assertTrue(stop)
-            self.assertTrue(stop.routes == '50')
+            point = Point(x=-117.5, y=36.0)
+            stops = Stops.point_stops(self.db.session, point)
+            self.assertTrue(len(stops) > 5)
+
+            if self.pgdb:
+                point = Point(x=122.6664, y=45.53)
+                stops = Stops.point_stops(self.pgdb.session, point)
+                self.assertTrue(len(stops) > 5)
+
 
 
 
