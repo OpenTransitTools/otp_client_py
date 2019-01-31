@@ -12,7 +12,7 @@ from .base import *
 class TiTest(unittest.TestCase):
     db = None
     DO_PG = False
-    PG_URL = "postgresql://ott@maps7:5432/ott"
+    PG_URL = "postgresql://ott@localhost:5432/ott"
     PG_SCHEMA = "current_test"
 
     def setUp(self):
@@ -85,8 +85,9 @@ class TiTest(unittest.TestCase):
             self.assertTrue(len(stops) > 5)
 
     def test_point_stops(self):
-        # import pdb; pdb.set_trace()
         if self.DO_PG:
-            point = Point(x=-117.5, y=36.0)
+            #import pdb; pdb.set_trace()
+            point = Point(x=-117.15, y=36.43)
             stops = Stops.nearest_stops(self.db.session, point)
             self.assertTrue(len(stops) > 5)
+            self.assertTrue(stops[0].get('dist') > 1000 and stops[0].get('dist') < 2000)
