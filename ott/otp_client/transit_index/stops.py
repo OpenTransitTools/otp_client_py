@@ -10,36 +10,7 @@ log = logging.getLogger(__file__)
 
 class Stops(Base):
     """
-    Scrolling map / BBOX call to stops:
 
-    https://<domain & port>/otp/routers/default/index/stops?
-      minLat=45.50854243338104&maxLat=45.519789433696744&minLon=-122.6960849761963&maxLon=-122.65591621398927
-    [
-        {
-            id: TriMet:4026
-            code: 4026
-            name: SE Morrison & 9th
-            lat: 45.517303
-            lon: -122.656536
-            url: http://trimet.org/#tracker/stop/4026
-        }
-    ]
-
-    Nearest stops call:
-
-    https://<domain & port>/otp/routers/default/index/stops?
-    radius=1000&lat=45.4926336&lon=-122.63915519999999
-    [
-      {
-        "id": "TriMet:5516",
-        "code": "5516",
-        "name": "SE Steele & 30th",
-        "lat": 45.484781,
-        "lon": -122.635074,
-        "url": "http://trimet.org/#tracker/stop/5516",
-        "dist": 928
-      }
-    ]
 
     Stop call https://<domain & port>/otp/routers/default/index/stops/<agency>:<stop_id>
     {
@@ -99,10 +70,25 @@ class Stops(Base):
     @classmethod
     def bbox_stops(cls, session, bbox, agency_id=None, limit=1000, detailed=False):
         """
+        Scrolling map / BBOX call to stops:
+
+        https://<domain & port>/otp/routers/default/index/stops?
+          minLat=45.50854243338104&maxLat=45.519789433696744&minLon=-122.6960849761963&maxLon=-122.65591621398927
+        [
+            {
+                id: TriMet:4026
+                code: 4026
+                name: SE Morrison & 9th
+                lat: 45.517303
+                lon: -122.656536
+                url: http://trimet.org/#tracker/stop/4026
+            }
+        ]
+
         :return a list of stops within the bbox
         """
         from gtfsdb import CurrentStops
-        stops = CurrentStops.query_stops_via_bbox(session, bbox, limit)
+        stops = CurrentStops.query_stops_via_bbox(session, bbox.to_gtfsdb_bbox(), limit)
         ret_val = cls._stop_list_from_gtfsdb_list(stops, None, agency_id, limit, detailed)
         return ret_val
 
@@ -111,11 +97,25 @@ class Stops(Base):
         """
         query nearest stops based on walk graph
         :params db session, POINT(x,y), limit=10:
-        TODO: otp nearest is TDB functionality ... so just call gtfsdb for now
+
+        https://<domain & port>/otp/routers/default/index/stops?
+        radius=1000&lat=45.4926336&lon=-122.63915519999999
+        [
+          {
+            "id": "TriMet:5516",
+            "code": "5516",
+            "name": "SE Steele & 30th",
+            "lat": 45.484781,
+            "lon": -122.635074,
+            "url": "http://trimet.org/#tracker/stop/5516",
+            "dist": 928
+          }
+        ]
+
         :return a list of nearest stops
         """
         from gtfsdb import CurrentStops
-        stops = CurrentStops.query_stops_via_point(session, point, limit)
+        stops = CurrentStops.query_stops_via_point(session, point.to_gtfsdb_point(), limit)
         ret_val = cls._stop_list_from_gtfsdb_list(stops, point, agency_id, limit, detailed)
         return ret_val
 

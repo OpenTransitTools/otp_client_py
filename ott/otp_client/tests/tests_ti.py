@@ -12,16 +12,14 @@ from .base import *
 class TiTest(unittest.TestCase):
     db = None
     DO_PG = False
-    PG_URL = "postgresql://ott@localhost:5432/ott"
+    PG_URL = "postgresql://ott@maps7:5432/ott"
     PG_SCHEMA = "current_test"
-    PG_TM_SCHEMA = "trimet"  # == None if you don't have TriMet's GTFS loaded in the above db
 
     def setUp(self):
+        # import pdb; pdb.set_trace()
         if TiTest.db is None:
             if self.DO_PG:
                 self.db = load_pgsql(self.PG_URL, self.PG_SCHEMA)
-                if self.PG_TM_SCHEMA:
-                    self.pgdb = get_pg_db(self.PG_URL, self.PG_TM_SCHEMA)
             else:
                 self.db = load_sqlite()
 
@@ -60,7 +58,8 @@ class TiTest(unittest.TestCase):
 
         # test an old stop querying it's route list (assigned to DTA:OLD route)
         routes = Routes.stop_routes_factory(self.db.session, 'EMSI', date="9-15-2018")
-        self.assertTrue(routes[0].get('id') == 'DTA:OLD')
+        self.assertTrue(routes[0].get('id') in ('DTA:OLD', 'DTA:ALWAYS'))
+        self.assertTrue(routes[1].get('id') in ('DTA:OLD', 'DTA:ALWAYS'))
 
         # test an old stop querying it's route list (assigned to DTA:ALWAYS route, but don't show due to OLD stop)
         routes = Routes.stop_routes_factory(self.db.session, 'OLD', date="9-15-2018")
@@ -85,23 +84,9 @@ class TiTest(unittest.TestCase):
             stops = Stops.bbox_stops(self.db.session, bbox)
             self.assertTrue(len(stops) > 5)
 
-            if self.pgdb:
-                bbox = BBox(min_lat=45.530, max_lat=45.535, min_lon=-122.665, max_lon=-122.667)
-                stops = Stops.bbox_stops(self.pgdb.session, bbox)
-                self.assertTrue(len(stops) > 5)
-
     def test_point_stops(self):
         # import pdb; pdb.set_trace()
         if self.DO_PG:
             point = Point(x=-117.5, y=36.0)
-            stops = Stops.point_stops(self.db.session, point)
+            stops = Stops.nearest_stops(self.db.session, point)
             self.assertTrue(len(stops) > 5)
-
-            if self.pgdb:
-                point = Point(x=122.6664, y=45.53)
-                stops = Stops.point_stops(self.pgdb.session, point)
-                self.assertTrue(len(stops) > 5)
-
-
-
-
