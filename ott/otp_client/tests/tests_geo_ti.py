@@ -30,6 +30,8 @@ class TiTestGeo(unittest.TestCase):
 
     def test_point_stops(self):
         if self.DO_PG:
+            #import pdb; pdb.set_trace()
             point = Point(x=-122.6664, y=45.53)
             stops = Stops.nearest_stops(self.db.session, point)
             self.assertTrue(len(stops) > 5)
+            self.assertTrue(stops[0].get('dist') > 1 and stops[0].get('dist') < 100)
