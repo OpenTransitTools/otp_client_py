@@ -40,7 +40,6 @@ class Routes(Base):
         :return a list of all route(s) serving a given stop
 
         http://localhost:54445/ti/stops/TriMet:2/routes
-
         STOP's ROUTES RESPONSE:
         [
           {
@@ -52,22 +51,13 @@ class Routes(Base):
           }
         ]
         """
-        routes = []
-
         # import pdb; pdb.set_trace()
-        # TODO - get rid of the date, and implement that over in gtfsdb
         if date:
-            from gtfsdb import Stop, Route
-            s = Stop.query_orm_for_stop(session, stop_id, detailed=False)
-            if s and s.routes:
-                routes = Route.filter_active_routes(s.routes, date=date)
+            from gtfsdb import RouteStop
+            routes = RouteStop.unique_routes_at_stop(session, stop_id=stop_id, agency_id=agency_id, date=date)
         else:
-            from gtfsdb import CurrentStops, CurrentRoutes
-            from gtfsdb import Route
-            # TODO -- how to use current stops to get current routes ??? currently querying trips ... too slow
-            s = CurrentStops.query_orm_for_stop(session, stop_id, detailed=False)
-            if s and s.stop and s.stop.routes:
-                routes = Route.filter_active_routes(s.stop.routes, date=date)
+            from gtfsdb import CurrentRouteStops
+            routes = CurrentRouteStops.unique_routes_at_stop(session, stop_id=stop_id, agency_id=agency_id)
 
         ret_val = cls._route_list_from_gtfsdb_orm_list(routes, agency_id)
         return ret_val
