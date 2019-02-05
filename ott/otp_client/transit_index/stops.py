@@ -46,7 +46,7 @@ class Stops(Base):
         object_utils.safe_set_from_dict(self, 'dist', args, always_cpy=False)
 
         object_utils.safe_set_from_dict(self, 'zoneId', args, always_cpy=False)
-        object_utils.safe_set_from_dict(self, 'routes', args, always_cpy=False)  # todo
+        object_utils.safe_set_from_dict(self, 'rsn', args, always_cpy=False)
         object_utils.safe_set_from_dict(self, 'mode', args, always_cpy=False)
         object_utils.safe_set_from_dict(self, 'type', args, always_cpy=False)
         object_utils.safe_set_from_dict(self, 'locationType', args, always_cpy=False)
@@ -150,7 +150,7 @@ class Stops(Base):
             'url': getattr(cs.stop, 'stop_url', None),
             'mode': cs.route_mode,
             'type': cs.route_type,
-            'routes': cs.route_short_names,
+            'rsn': cs.route_short_names,
             'locationType': cs.location_type,
         }
 
