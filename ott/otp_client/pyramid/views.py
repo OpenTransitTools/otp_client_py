@@ -4,6 +4,7 @@ from pyramid.view import view_config
 from ott.otp_client.transit_index.routes import Routes
 from ott.otp_client.transit_index.stops import Stops
 from ott.otp_client.trip_planner import TripPlanner
+from ott.otp_client.transit_index.patterns import Patterns
 
 from ott.geocoder.geosolr import GeoSolr
 from ott.utils.parse.url.param_parser import ParamParser
@@ -39,6 +40,36 @@ def do_view_config(cfg):
     cfg.add_route('ti_stop', '/ti/stops/{stop}')
     cfg.add_route('ti_stop_routes', '/ti/stops/{stop}/routes')
     cfg.add_route('ti_nearest_stops', '/ti/stops')
+
+    cfg.add_route('ti_pattern_geom', '/ti/patterns/{route}:{dir}:{pattern}/geometry')
+
+
+@view_config(route_name='ti_pattern_geom', renderer='json', http_cache=globals.CACHE_LONG)
+def pattern_geom(request):
+    """
+    Pattern Info: index/patterns/<route id>:<direction id>:<pattern id>/geometry ala <TriMet:190>:<0>:<04>/geometry
+    {
+      points: "crwtGbtxk...",
+      length: 588
+    }
+    """
+    ret_val = {}
+    pattern_id = request.matchdict['pattern']
+
+    agency_id = None
+    '''
+    NOTE: for now we don't need agency or route info
+    route = request.matchdict['route']
+    agency_id, stop_id = otp_utils.breakout_agency_id(route)
+    if agency_id is None:
+        agency_id = APP_CONFIG.get_agency(request)
+    '''
+
+    with APP_CONFIG.db.managed_session(timeout=10) as session:
+        s = Patterns.geometry(session, pattern_id, agency_id)
+        if s:
+            ret_val = s.__dict__
+    return ret_val
 
 
 @view_config(route_name='ti_nearest_stops', renderer='json', http_cache=globals.CACHE_LONG)
