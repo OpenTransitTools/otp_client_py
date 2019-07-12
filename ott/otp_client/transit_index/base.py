@@ -44,11 +44,16 @@ def main():
     elif 'stops' in argv:
         from .stops import Stops
         list = Stops.mock()
+    elif 'pat' in argv:
+        from .patterns import Patterns
+        list = Patterns.mock()
     else:
         list = Base.mock()
 
+    print "HI"
     for o in list:
         print(o)
+    print "BYE"
 
 
 if __name__ == '__main__':
