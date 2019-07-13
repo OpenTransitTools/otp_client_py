@@ -5,7 +5,6 @@ from ott.otp_client.trip_planner import TripPlanner
 from ott.otp_client.transit_index.routes import Routes
 from ott.otp_client.transit_index.stops import Stops
 from ott.otp_client.transit_index.patterns import Patterns
-import gtfsdb
 
 from ott.geocoder.geosolr import GeoSolr
 from ott.utils.parse.url.param_parser import ParamParser
@@ -42,34 +41,50 @@ def do_view_config(cfg):
     cfg.add_route('ti_stop_routes', '/ti/stops/{stop}/routes')
     cfg.add_route('ti_nearest_stops', '/ti/stops')
 
-    cfg.add_route('ti_pattern_geom', '/ti/patterns/{route}:{dir}:{pattern}/geometry')
+    cfg.add_route('ti_pattern_geom_ti', '/ti/patterns/{route}:{dir}:{pattern}/geometry') # order important here
+    cfg.add_route('ti_pattern_geom', '/ti/patterns/{agency}:{pattern}/geometry')
 
 
 @view_config(route_name='ti_pattern_geom', renderer='json', http_cache=globals.CACHE_LONG)
 def pattern_geom(request):
     """
-    Pattern Info: index/patterns/<route id>:<direction id>:<pattern id>/geometry ala <TriMet:190>:<0>:<04>/geometry
+    This service endpoint has just the params needed by gtfs ala patterns/<agency>:<pattern id>/geometry
+    :see pattern_geom_ti note for return and example calls...
+    """
+    # import pdb; pdb.set_trace()
+    pattern_id = request.matchdict['pattern']
+    agency_id = request.matchdict['agency']
+    return Patterns.query_geometry_encoded(APP_CONFIG, pattern_id, agency_id)
+
+
+@view_config(route_name='ti_pattern_geom_ti', renderer='json', http_cache=globals.CACHE_LONG)
+def pattern_geom_ti(request):
+    """
+    This service endpoint mirrors the OTP IT signature of patterns/<route id>:<direction id>:<pattern id>/geometry
+
+    :returns:
     {
       points: "crwtGbtxk...",
       length: 588
     }
+
+    :examples:
+      :ti: https://maps.trimet.org/otp_mod/index/patterns/TriMet:190:0:04/geometry
+      :gtfsdb: http://localhost:54445/ti/patterns/TriMet:90:0:409973/geometry
+
+    :note: the OTP TI uses an internally generated pattern id ... gtfsdb uses shape id from GTFS to index patterns, so
+       we don't need the route id or direction to do the lookup ... really just need shape id and (agency if multiple)
+
+    :fyi: https://github.com/OneBusAway/onebusaway-application-modules/wiki/Stop-to-Shape-Matching
     """
     # import pdb; pdb.set_trace()
-    pattern_id = request.matchdict['pattern']
-    agency_id = None
-    '''
-    NOTE: for now we don't need agency or route info
-    route = request.matchdict['route']
-    agency_id, stop_id = otp_utils.breakout_agency_id(route)
-    if agency_id is None:
-        agency_id = APP_CONFIG.get_agency(request)
-    '''
 
-    with APP_CONFIG.db.managed_session(timeout=10) as session:
-        geom = gtfsdb.Pattern.get_geometry_encoded(session, pattern_id, agency_id)
-        if geom:
-            ret_val = geom
-    return ret_val
+    # get agency and pattern ids
+    route = request.matchdict['route']
+    agency_id, route_id = otp_utils.breakout_agency_id(route)
+    pattern_id = request.matchdict['pattern']
+
+    return Patterns.query_geometry_encoded(APP_CONFIG, pattern_id, agency_id)
 
 
 @view_config(route_name='ti_nearest_stops', renderer='json', http_cache=globals.CACHE_LONG)

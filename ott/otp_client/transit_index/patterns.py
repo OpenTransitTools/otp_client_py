@@ -3,6 +3,8 @@ from ott.utils import otp_utils
 
 from .base import Base
 
+import gtfsdb
+
 import logging
 log = logging.getLogger(__file__)
 
@@ -22,56 +24,16 @@ class Patterns(Base):
     """
     def __init__(self, args={}):
         super(Pattern, self).__init__(args)
-        object_utils.safe_set_from_dict(self, 'mode', args)
+        ## TODO: Is this class needed?  Maybe for converting gtfsdb route patterns (list), but ???
 
     @classmethod
-    def pattern_factory(cls, session, pattern_id, agency_id=None, encode=True):
-        """
-        will return the geometry of the specified pattern (via pattern_id aka shape_id)
+    def query_geometry_encoded(cls, app_config, pattern_id, agency_id=None):
+        if agency_id is None:
+            agency_id = app_config.get_agency(request)
 
-        :param session:
-        :param pattern_id - NOTE that pattern_id is also referred to as shape_id in GTFSDB:
-        :param agency_id - optional ... else defaults to configured default agency:
-        :param encode - use mapbox compressing of geometry into encoded/minified string :
-        :return geometry object of some sort:
-        """
-
-
-    @classmethod
-    def route_patterns_factory(cls, session, route_id, date=None, agency_id=None):
-        """
-        :return a list of all patterns serving a given route
-
-        http://localhost:54445/ti/ XXXXXNNN
-
-        [
-          {
-            "id": "TriMet:10",
-          }
-        ]
-        """
-        # import pdb; pdb.set_trace()
-        if date:
-            from gtfsdb import RoutePattern
-        else:
-            from gtfsdb import CurrentRoutePatter
-
-        ret_val = cls._XXXXXXroute_list_from_gtfsdb_orm_list(routes, agency_id)
-        return ret_val
-
-    @classmethod
-    def _route_from_gtfsdb_orm(cls, r, agency_id=None):
-        """ factory to genereate a Route obj from a queried gtfsdb route """
-        agency = agency_id if agency_id else r.agency_id
-        otp_route_id = otp_utils.make_otp_id(r.route_id, agency)
-        cfg = {
-            'agencyName': r.agency.agency_name, 'id': otp_route_id,
-            'longName': r.route_long_name, 'shortName': r.route_short_name,
-            'mode': r.type.otp_type, 'type': r.type.route_type,
-            'sortOrder': r.route_sort_order,
-            'color': r.route_color, 'textColor': r.route_text_color
-        }
-        ret_val = Routes(cfg)
+        # with pattern id (i.e., shape id) and agency, query the encoded geometry from gtfsdb
+        with app_config.db.managed_session(timeout=10) as session:
+            ret_val = gtfsdb.Pattern.get_geometry_encoded(session, pattern_id, agency_id)
         return ret_val
 
     @classmethod
