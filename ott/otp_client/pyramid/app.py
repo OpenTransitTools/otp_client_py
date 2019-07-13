@@ -10,7 +10,7 @@ def main(global_config, **ini_settings):
     it returns a Pyramid WSGI application
     see setup.py entry points + config/*.ini [app:main] ala pserve (e.g., bin/pserve config/development.ini)
     """
-    #import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     app = AppConfig(**ini_settings)
 
     from gtfsdb import Database
