@@ -1,10 +1,11 @@
 from pyramid.response import Response
 from pyramid.view import view_config
 
+from ott.otp_client.trip_planner import TripPlanner
 from ott.otp_client.transit_index.routes import Routes
 from ott.otp_client.transit_index.stops import Stops
-from ott.otp_client.trip_planner import TripPlanner
 from ott.otp_client.transit_index.patterns import Patterns
+import gtfsdb
 
 from ott.geocoder.geosolr import GeoSolr
 from ott.utils.parse.url.param_parser import ParamParser
@@ -53,9 +54,8 @@ def pattern_geom(request):
       length: 588
     }
     """
-    ret_val = {}
+    # import pdb; pdb.set_trace()
     pattern_id = request.matchdict['pattern']
-
     agency_id = None
     '''
     NOTE: for now we don't need agency or route info
@@ -66,9 +66,9 @@ def pattern_geom(request):
     '''
 
     with APP_CONFIG.db.managed_session(timeout=10) as session:
-        s = Patterns.geometry(session, pattern_id, agency_id)
-        if s:
-            ret_val = s.__dict__
+        geom = gtfsdb.Pattern.get_geometry_encoded(session, pattern_id, agency_id)
+        if geom:
+            ret_val = geom
     return ret_val
 
 
@@ -78,7 +78,6 @@ def nearest_stops(request):
     Nearest Stops: stops?radius=1000&lat=45.4926&lon=-122.6391
     BBox Stops: stops?minLat=45.508542&maxLat=45.5197894&minLon=-122.696084&maxLon=-122.65594
     """
-    # import pdb; pdb.set_trace()
     params = GeoParamParser(request)
     agency_id = APP_CONFIG.get_agency(params)
     if params.has_radius():
