@@ -29,7 +29,7 @@ class Patterns(Base):
     @classmethod
     def query_geometry_encoded(cls, app_config, pattern_id, agency_id=None):
         if agency_id is None:
-            agency_id = app_config.get_agency(request)
+            agency_id = app_config.get_agency()
 
         # with pattern id (i.e., shape id) and agency, query the encoded geometry from gtfsdb
         with app_config.db.managed_session(timeout=10) as session:
