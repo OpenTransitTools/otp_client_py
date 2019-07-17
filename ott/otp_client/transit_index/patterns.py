@@ -27,6 +27,16 @@ class Patterns(Base):
         ## TODO: Is this class needed?  Maybe for converting gtfsdb route patterns (list), but ???
 
     @classmethod
+    def query_geometry_geojson(cls, app_config, pattern_id, agency_id=None):
+        if agency_id is None:
+            agency_id = app_config.get_agency(request)
+
+        # with pattern id (i.e., shape id) and agency, query the encoded geometry from gtfsdb
+        with app_config.db.managed_session(timeout=10) as session:
+            ret_val = gtfsdb.Pattern.get_geometry_geojson(session, pattern_id, agency_id)
+        return ret_val
+
+    @classmethod
     def query_geometry_encoded(cls, app_config, pattern_id, agency_id=None):
         if agency_id is None:
             agency_id = app_config.get_agency()

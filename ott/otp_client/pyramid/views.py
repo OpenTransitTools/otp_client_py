@@ -43,6 +43,20 @@ def do_view_config(cfg):
 
     cfg.add_route('ti_pattern_geom_ti', '/ti/patterns/{route}:{dir}:{pattern}/geometry') # order important here
     cfg.add_route('ti_pattern_geom', '/ti/patterns/{agency}:{pattern}/geometry')
+    cfg.add_route('ti_pattern_geom_geojson', '/ti/patterns/{agency}:{pattern}/geometry/geojson')
+
+
+@view_config(route_name='ti_pattern_geom_geojson', renderer='json', http_cache=globals.CACHE_LONG)
+def pattern_geom_geojson(request):
+    """
+    This service endpoint has just the params needed by gtfs ala patterns/<agency>:<pattern id>/geometry
+    :see pattern_geom_ti note for return and example calls...
+    :returns geojson
+    """
+    # import pdb; pdb.set_trace()
+    pattern_id = request.matchdict['pattern']
+    agency_id = request.matchdict['agency']
+    return Patterns.query_geometry_geojson(APP_CONFIG, pattern_id, agency_id)
 
 
 @view_config(route_name='ti_pattern_geom', renderer='json', http_cache=globals.CACHE_LONG)
@@ -50,6 +64,8 @@ def pattern_geom(request):
     """
     This service endpoint has just the params needed by gtfs ala patterns/<agency>:<pattern id>/geometry
     :see pattern_geom_ti note for return and example calls...
+    :returns encoded line geometry
+    :see https://developers.google.com/maps/documentation/utilities/polylinealgorithm
     """
     # import pdb; pdb.set_trace()
     pattern_id = request.matchdict['pattern']
@@ -62,11 +78,14 @@ def pattern_geom_ti(request):
     """
     This service endpoint mirrors the OTP IT signature of patterns/<route id>:<direction id>:<pattern id>/geometry
 
+    :returns encoded line geometry
     :returns:
     {
       points: "crwtGbtxk...",
       length: 588
     }
+
+    :see https://developers.google.com/maps/documentation/utilities/polylinealgorithm
 
     :examples:
       :ti: https://maps.trimet.org/otp_mod/index/patterns/TriMet:190:0:04/geometry
@@ -76,6 +95,7 @@ def pattern_geom_ti(request):
        we don't need the route id or direction to do the lookup ... really just need shape id and (agency if multiple)
 
     :fyi: https://github.com/OneBusAway/onebusaway-application-modules/wiki/Stop-to-Shape-Matching
+
     """
     # import pdb; pdb.set_trace()
 
