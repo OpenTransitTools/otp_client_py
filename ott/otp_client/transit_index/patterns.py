@@ -29,7 +29,7 @@ class Patterns(Base):
     @classmethod
     def query_geometry_geojson(cls, app_config, pattern_id, agency_id=None):
         if agency_id is None:
-            agency_id = app_config.get_agency(request)
+            agency_id = app_config.get_agency()
 
         # with pattern id (i.e., shape id) and agency, query the encoded geometry from gtfsdb
         with app_config.db.managed_session(timeout=10) as session:
@@ -44,6 +44,24 @@ class Patterns(Base):
         # with pattern id (i.e., shape id) and agency, query the encoded geometry from gtfsdb
         with app_config.db.managed_session(timeout=10) as session:
             ret_val = gtfsdb.Pattern.get_geometry_encoded(session, pattern_id, agency_id)
+        return ret_val
+
+    @classmethod
+    def query_pattern_id_from_trip_id(cls, app_config, trip_id, agency_id=None):
+        ret_val = None
+
+        try:
+            if agency_id is None:
+                agency_id = app_config.get_agency()
+
+            with app_config.db.managed_session(timeout=10) as session:
+                t = gtfsdb.Trip.query_trip(session, trip_id)
+                if t and t.shape_id:
+                    # shape id == pattern id
+                    ret_val = t.shape_id
+        except Exception as e:
+            log.warning(e)
+
         return ret_val
 
     @classmethod

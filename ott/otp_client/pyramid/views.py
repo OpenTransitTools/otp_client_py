@@ -45,7 +45,7 @@ def do_view_config(cfg):
     cfg.add_route('ti_pattern_geom_ti', '/ti/patterns/{route}:{dir}:{pattern}/geometry')  # order important here
     cfg.add_route('ti_pattern_geom', '/ti/patterns/{agency}:{pattern}/geometry')
     cfg.add_route('ti_pattern_geom_geojson', '/ti/patterns/{agency}:{pattern}/geometry/geojson')
-    cfg.add_route('ti_pattern_geom_viatrip_geojson', '/ti/patterns/trip/{agency}:{trip}/geometry/geojson')
+    cfg.add_route('ti_pattern_geom_via_trip_geojson', '/ti/patterns/trip/{agency}:{trip}/geometry/geojson')
 
 
 @view_config(route_name='ti_pattern_geom_geojson', renderer='json', http_cache=globals.CACHE_LONG)
@@ -61,15 +61,16 @@ def pattern_geom_geojson(request):
     return Patterns.query_geometry_geojson(APP_CONFIG, pattern_id, agency_id)
 
 
-@view_config(route_name='ti_pattern_geom_viatrip_geojson', renderer='json', http_cache=globals.CACHE_LONG)
-def pattern_geom_viatrip_geojson(request):
+@view_config(route_name='ti_pattern_geom_via_trip_geojson', renderer='json', http_cache=globals.CACHE_LONG)
+def pattern_geom_via_trip_geojson(request):
     """
     This service will use a tripid to then find the pattern id
     :returns geojson
     """
     # import pdb; pdb.set_trace()
-    pattern_id = request.matchdict['pattern']
+    trip_id = request.matchdict['trip']
     agency_id = request.matchdict['agency']
+    pattern_id = Patterns.query_pattern_id_from_trip_id(APP_CONFIG, trip_id, agency_id)
     return Patterns.query_geometry_geojson(APP_CONFIG, pattern_id, agency_id)
 
 
