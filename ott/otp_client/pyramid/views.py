@@ -32,6 +32,7 @@ def set_app_config(app_cfg):
 
 def do_view_config(cfg):
     cfg.add_route('plan_trip', '/plan_trip')
+    cfg.add_route('ti_plan_trip', '/ti/plan_trip')
 
     cfg.add_route('ti_route_patterns', '/ti/routes/{route}/patterns')
     cfg.add_route('ti_route', '/ti/routes/{route}')
@@ -41,9 +42,10 @@ def do_view_config(cfg):
     cfg.add_route('ti_stop_routes', '/ti/stops/{stop}/routes')
     cfg.add_route('ti_nearest_stops', '/ti/stops')
 
-    cfg.add_route('ti_pattern_geom_ti', '/ti/patterns/{route}:{dir}:{pattern}/geometry') # order important here
+    cfg.add_route('ti_pattern_geom_ti', '/ti/patterns/{route}:{dir}:{pattern}/geometry')  # order important here
     cfg.add_route('ti_pattern_geom', '/ti/patterns/{agency}:{pattern}/geometry')
     cfg.add_route('ti_pattern_geom_geojson', '/ti/patterns/{agency}:{pattern}/geometry/geojson')
+    cfg.add_route('ti_pattern_geom_viatrip_geojson', '/ti/patterns/trip/{agency}:{trip}/geometry/geojson')
 
 
 @view_config(route_name='ti_pattern_geom_geojson', renderer='json', http_cache=globals.CACHE_LONG)
@@ -51,6 +53,18 @@ def pattern_geom_geojson(request):
     """
     This service endpoint has just the params needed by gtfs ala patterns/<agency>:<pattern id>/geometry
     :see pattern_geom_ti note for return and example calls...
+    :returns geojson
+    """
+    # import pdb; pdb.set_trace()
+    pattern_id = request.matchdict['pattern']
+    agency_id = request.matchdict['agency']
+    return Patterns.query_geometry_geojson(APP_CONFIG, pattern_id, agency_id)
+
+
+@view_config(route_name='ti_pattern_geom_viatrip_geojson', renderer='json', http_cache=globals.CACHE_LONG)
+def pattern_geom_viatrip_geojson(request):
+    """
+    This service will use a tripid to then find the pattern id
     :returns geojson
     """
     # import pdb; pdb.set_trace()
@@ -227,6 +241,7 @@ def route_patterns(request):
 
 
 @view_config(route_name='plan_trip', renderer='json', http_cache=globals.CACHE_SHORT)
+@view_config(route_name='ti_plan_trip', renderer='json', http_cache=globals.CACHE_SHORT)
 def plan_trip(request):
     ret_val = None
     try:
@@ -250,7 +265,7 @@ def get_planner():
     """ cache's up TripPlanner object (stores it in our APP_CONFIG) """
     # import pdb; pdb.set_trace()
     if getattr(APP_CONFIG, 'trip_planner', None) is None:
-        planner_url = get_otp_url() + '/plan' # todo ... url append method available?
+        planner_url = get_otp_url() + '/plan'  # todo ... url append method available?
         advert_url = APP_CONFIG.ini_settings.get('advert_url')
         fare_url = APP_CONFIG.ini_settings.get('fare_url')
         cancelled_url = APP_CONFIG.ini_settings.get('cancelled_routes_url')

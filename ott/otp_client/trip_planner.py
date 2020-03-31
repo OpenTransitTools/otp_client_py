@@ -13,6 +13,10 @@ log = logging.getLogger(__file__)
 
 
 class TripPlanner(object):
+    """
+    example trip queries:
+      
+    """
     def __init__(self, otp_url="http://localhost/prod", solr='http://localhost/solr', adverts=None, fares=None, cancelled_routes=None):
         self.otp_url = otp_url
 
@@ -50,7 +54,9 @@ class TripPlanner(object):
             log.warn(e)
 
     def plan_trip(self, request=None, pretty=False):
-        """ "powell%20blvd::45.49063653,-122.4822897"  "45.433507,-122.559709"
+        """
+        ...
+        powell%20blvd::45.49063653,-122.4822897"  "45.433507,-122.559709
         """
 
         # step 1: parse params
