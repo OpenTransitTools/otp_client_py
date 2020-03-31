@@ -1,5 +1,6 @@
 from ott.utils import json_utils
 from ott.utils import html_utils
+from ott.utils import otp_utils
 from ott.otp_client import otp_to_ott
 from ott.utils.parse.url.trip_param_parser import TripParamParser
 from ott.geocoder.geosolr import GeoSolr
@@ -15,7 +16,6 @@ log = logging.getLogger(__file__)
 class TripPlanner(object):
     """
     example trip queries:
-      
     """
     def __init__(self, otp_url="http://localhost/prod", solr='http://localhost/solr', adverts=None, fares=None, cancelled_routes=None):
         self.otp_url = otp_url
@@ -24,7 +24,6 @@ class TripPlanner(object):
         if isinstance(solr, str):
             self.geo = GeoSolr(solr)
 
-        #import pdb; pdb.set_trace()
         self.adverts = adverts
         self.fares = fares
         self.cancelled_routes = cancelled_routes
@@ -36,14 +35,14 @@ class TripPlanner(object):
                 from ott.data.content import Adverts
                 self.adverts = Adverts(adverts)
         except Exception as e:
-            log.warn(e)
+            log.warning(e)
 
         try:
             if isinstance(fares, str):
                 from ott.data.content import Fares
                 self.fares = Fares(fares)
         except Exception as e:
-            log.warn(e)
+            log.warning(e)
 
         try:
             if isinstance(cancelled_routes, str) and 'http' in cancelled_routes:
@@ -51,13 +50,14 @@ class TripPlanner(object):
                 from ott.data.content import CancelledRoutes
                 self.cancelled_routes = CancelledRoutes(cancelled_routes)
         except Exception as e:
-            log.warn(e)
+            log.warning(e)
 
     def plan_trip(self, request=None, pretty=False):
         """
         ...
         powell%20blvd::45.49063653,-122.4822897"  "45.433507,-122.559709
         """
+        # import pdb; pdb.set_trace()
 
         # step 1: parse params
         param = TripParamParser(request)
@@ -78,7 +78,7 @@ class TripPlanner(object):
             otp_params.date_offset(day_offset=1)
 
         url = "{0}?{1}".format(self.otp_url, otp_params.otp_url_params())
-        f = self.call_otp(url)
+        f = otp_utils.call_planner_svc(url)
         j = json.loads(f)
 
         # step 4: process any planner errors
@@ -100,21 +100,10 @@ class TripPlanner(object):
             try:
                 ret_val['error'] = otp_to_ott.Error(j['error'], param)
             except:
-                log.warn("I think we had a problem parsing the JSON from OTP ... see exception below:")
-                log.warn(e)
+                log.warning("I think we had a problem parsing the JSON from OTP ... see exception below:")
+                log.warning(e)
 
         ret_val = json_utils.json_repr(ret_val, pretty or param.pretty_output())
-        return ret_val
-
-    @classmethod
-    def call_otp(cls, url):
-        ret_val = None
-        try:
-            log.info(url)
-            with contextlib.closing(urllib.urlopen(url)) as f:
-                ret_val = f.read()
-        except Exception as e:
-            log.warn(e)
         return ret_val
 
     def geocode(self, param):

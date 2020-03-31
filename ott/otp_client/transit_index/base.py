@@ -50,10 +50,10 @@ def main():
     else:
         list = Base.mock()
 
-    print "HI"
+    print("HI")
     for o in list:
         print(o)
-    print "BYE"
+    print("BYE")
 
 
 if __name__ == '__main__':
