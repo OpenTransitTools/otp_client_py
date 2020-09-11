@@ -39,8 +39,9 @@ def do_view_config(cfg):
     cfg.add_route('ti_route_list', '/ti/routes')
 
     cfg.add_route('ti_stop', '/ti/stops/{stop}')
-    cfg.add_route('ti_stop_routes', '/ti/stops/{stop}/routes')
     cfg.add_route('ti_nearest_stops', '/ti/stops')
+    cfg.add_route('ti_stop_routes', '/ti/stops/{stop}/routes')
+    cfg.add_route('ti_stop_routes_str', '/ti/stops/{stop}/routes/str')
 
     cfg.add_route('ti_pattern_geom_ti', '/ti/patterns/{route}:{dir}:{pattern}/geometry')  # order important here
     cfg.add_route('ti_pattern_geom', '/ti/patterns/{agency}:{pattern}/geometry')
@@ -187,6 +188,35 @@ def stop_routes(request):
         agency_id = APP_CONFIG.get_agency(params)
     with APP_CONFIG.db.managed_session(timeout=10) as session:
         ret_val = Routes.stop_routes_factory(session, stop_id, params.get_date(), agency_id)
+    return ret_val
+
+
+@view_config(route_name='ti_stop_routes_str', renderer='string', http_cache=globals.CACHE_LONG)
+def stop_routes_str(request):
+    """
+    :return string of route(s) details serving a stop (ala string originally formatted for TriMet SOLR geocoder)
+
+    examples:
+      http://localhost:54445/stops/2/routes/str
+      routes: "37:37:Lake Grove:;78:78:Denney/Kerr Pkwy:snow"
+
+      http://localhost:54445/stops/7777/routes/str
+      routes: "200::MAX Green Line:;190::MAX Yellow Line:"
+    """
+    # import pdb; pdb.set_trace()
+    ret_val = ""
+    #import pdb; pdb.set_trace()
+    routes = stop_routes(request)
+    if routes and len(routes):
+        spc = ""
+        for r in routes:
+            snow_stop = ""  # data not in GTFS atm, but....
+            agency_id, route_id = otp_utils.breakout_agency_id(r.get("id"))
+            long_name = r.get("longName", "")
+            short_name = r.get("shortName", "")
+            rte = "{}:{}:{}:{}".format(route_id, short_name, long_name, snow_stop)
+            ret_val = "{}{}{}".format(ret_val, spc, rte)
+            spc = ";"
     return ret_val
 
 
