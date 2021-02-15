@@ -412,12 +412,14 @@ class Alert(object):
         """ returns either def_val (when no alerts in the jsn input), or a list of [Alert]s
         """
         ret_val = def_val
-        if jsn and len(jsn) > 0:
-            ret_val = []
-            for a in jsn:
-                alert = Alert(a, route_id)
-                ret_val.append(alert)
-
+        try:
+            if jsn and len(jsn) > 0:
+                ret_val = []
+                for a in jsn:
+                    alert = Alert(a, route_id)
+                    ret_val.append(alert)
+        except Exception as e:
+            log.warning(e)
         return ret_val
 
 
@@ -1022,11 +1024,11 @@ def main():
     argv = sys.argv
 
     if argv and len(argv) > 1 and ('new' in argv or 'n' in argv):
-        file = 'new/pdx2ohsu.json'
+        file = './ott/otp_client/tests/data/new/pdx2ohsu.json'
     elif argv and len(argv) > 1 and not ('pretty' in argv or 'p' in argv):
         file = argv[1]
     else:
-        file = 'old/pdx2ohsu.json'
+        file = './ott/otp_client/tests/data/old/pdx2ohsu.json'
 
     try:
         f = open(file)
