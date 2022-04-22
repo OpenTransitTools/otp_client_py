@@ -22,7 +22,7 @@ requires = [
     'pyramid',
     'pyramid_tm',
     'pyramid_exclog',
-    'waitress==1.4.3',
+    'waitress==2.1.1',
 
     'venusian==1.2.0',
     'protobuf<3.0' # 3.x requires 'six>=1.9' ... but some other lib wants six=1.4
