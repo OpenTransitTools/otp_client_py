@@ -1,5 +1,5 @@
 import os
-import sys
+
 from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -10,7 +10,7 @@ requires = [
     # 6/4/2020: 3 pins needed to make this build 
     'requests==2.21.0',
     'decorator<5.0',
-    'SQLAlchemy<1.4',
+    'SQLAlchemy>=1.4',
 
     'ott.utils',
     'ott.geocoder',
@@ -25,7 +25,7 @@ requires = [
     'waitress==1.4.3',
 
     'venusian==1.2.0',
-    'protobuf<3.0' # 3.x requires 'six>=1.9' ... but some other lib wants six=1.4
+    'protobuf<3.0'  # 3.x requires 'six>=1.9' ... but some other lib wants six=1.4
 ]
 
 extras_require = dict(
