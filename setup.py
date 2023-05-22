@@ -8,7 +8,7 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
     # 6/4/2020: 3 pins needed to make this build 
-    'requests==2.21.0',
+    'requests==2.31.0',
     'decorator<5.0',
     'SQLAlchemy<1.4',
 
